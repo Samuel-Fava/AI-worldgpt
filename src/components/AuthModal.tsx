@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, Eye, EyeOff, ArrowRight, Shield, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
+import { aipRoute } from '../../utils/apis';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAuth: (user: { name: string; email: string }) => void;
+  onAuth: (user: { firstName: string; lastName: string; email: string }) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth }) => {
@@ -13,7 +14,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -34,9 +36,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
         if (value.length < 8) return 'Password must be at least 8 characters';
         if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) return 'Password must contain uppercase, lowercase, and number';
         return '';
-      case 'name':
-        if (!isLogin && !value) return 'Full name is required';
-        if (!isLogin && value !== formData.password) return 'Password do not match';
+      case 'firstName':
+        if (!isLogin && !value) return 'First name is required';
+        // if (!isLogin && value !== formData.password) return 'Password do not match';
+        return '';
+      case 'lastName':
+        if (!isLogin && !value) return 'Last name is required';
+        // if (!isLogin && value !== formData.password) return 'Password do not match';
         return '';
       default:
         return '';
@@ -47,7 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
     const newErrors: Record<string, string> = {};
     const fieldsTovalidate = isLogin
       ? ['email', 'password']
-      : ['name', 'email', 'password', 'confirmPassword', 'agreeToTerms'];
+      : ['firstName', 'lastName', 'email', 'password', 'confirmPassword', 'agreeToTerms'];
 
     fieldsTovalidate.forEach(field => {
       const error = validateField(field, field === 'agreeToTerms' ? '' : formData[field as keyof typeof formData] as string);
@@ -64,7 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
     //Make all fields as touched
     const fieldsToTouch = isLogin
       ? ['email', 'password']
-      : ['name', 'email', 'password', 'confirmPassword'];
+      : ['firstName', 'lastName', 'email', 'password', 'confirmPassword'];
     
     const newTouchedFields = { ...touchedFields};
     fieldsToTouch.forEach(field => {
@@ -78,26 +84,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
 
     try {
       //Simulate API call with realistic delay
-      await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 800));
+      const response:any = await aipRoute().post(isLogin ? '/login' : '/signup', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      });
+      localStorage.setItem('token', response.data.token);
 
       onAuth({
-        name: formData.name || formData.email.split('@')[0],
+        firstName: formData.firstName || formData.email.split('@')[0],
+        lastName: formData.lastName || formData.email.split('@')[0],
         email: formData.email
       });
 
       //Reset form
       setFormData({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
-        rememberMe: '',
+        rememberMe: false,
         agreeToTerms: false,
       });
       setTouchedFields({});
       setErrors({});
       onClose();
     } catch (error) {
+      console.log(error);
       setErrors({ submit: 'Something went wrong. Please try again.'});
     } finally {
       setIsLoading(false);
@@ -124,7 +139,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
       setErrors({});
       setTouchedFields({});
       setFormData({
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -207,24 +223,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                     <User className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400' size={18} />
                     <input 
                       type="text" 
-                      placeholder='Enter your full name' 
-                      value={formData.name} 
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      onBlur={() => handleBlur('name')}
+                      placeholder='Enter your first name' 
+                      value={formData.firstName} 
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      onBlur={() => handleBlur('firstName')}
                       className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-SOO focus:border-transparent outline-none transition-all text-sm placeholder-gray-400' ${
-                        getFieldError('name')
+                        getFieldError('firstName')
+                          ? 'border-red-300 bg-red-50 focus:ring-red-500'
+                          : 'border-gray-300 hover:border-gray-400 bg-white'
+                      }`}
+                    /> 
+                    {!getFieldError('firstName') && formData.firstName && touchedFields.firstName && (
+                      <CheckCircle className='absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500' size={18} />
+                    )}
+                </div>
+                  {getFieldError('firstName') && (
+                    <p className='text-red-500 text-xs mt-2 flex items-center gap-1'>
+                      <AlertCircle size={12} />
+                      {getFieldError('firstName')}
+                    </p>
+                  )}
+                <div className='margin-top-4 relative'>
+                    <input 
+                      type="text" 
+                      placeholder='Enter your last name' 
+                      value={formData.lastName} 
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      onBlur={() => handleBlur('lastName')}
+                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-SOO focus:border-transparent outline-none transition-all text-sm placeholder-gray-400' ${
+                        getFieldError('lastName')
                           ? 'border-red-300 bg-red-50 focus:ring-red-500'
                           : 'border-gray-300 hover:border-gray-400 bg-white'
                       }`}
                     />
-                    {!getFieldError('name') && formData.name && touchedFields.name && (
+
+                    {!getFieldError('lastName') && formData.lastName && touchedFields.lastName && (
                       <CheckCircle className='absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500' size={18} />
                     )}
                   </div>
-                  {getFieldError('name') && (
+             
+                  {getFieldError('lastName') && (
                     <p className='text-red-500 text-xs mt-2 flex items-center gap-1'>
                       <AlertCircle size={12}/>
-                      {getFieldError('name')} 
+                      {getFieldError('lastName')} 
                     </p>
                   )}
                 </div>
@@ -389,7 +430,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
 
               {isLogin && (
                 <div className='text-right'>
-                  <button type='button' className='text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors'>
+                  <button 
+                    type='button' 
+                    className='text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors'
+                    onClick={() => alert('Password reset flow coming soon!')}
+                  >
                     Forget your password?
                   </button>
                 </div>

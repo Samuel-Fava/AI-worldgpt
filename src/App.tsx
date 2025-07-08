@@ -5,7 +5,8 @@ import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 
 interface User {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
@@ -129,7 +130,6 @@ function App() {
 
   const handleGetStarted = () => {
     setIsAuthModalOpen(true);
-    // axios.post('/signup', { "email": "user@example.com", "password": "password", "firstName": "John", "lastName": "Doe" })
   };
 
   return (
