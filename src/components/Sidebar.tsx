@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, MessageSquare, Settings, LogOut, ChevronDown, Bot, User } from 'lucide-react';
 
 interface SidebarProps {
-  user: { name: string; email: string } | null;
+  user: { id: string; name: string; email: string, plan: "free" | "premium", createdAt: string; } | null;
   onSignOut: () => void;
   conversations: Array<{ id: string; title: string; lastMessage: string }>;
   activeConversationId: string | null;
@@ -10,6 +10,10 @@ interface SidebarProps {
   onNewConversation: () => void;
   selectedModel: string;
   onModelSelect: (model: string) => void;
+  handleStartSubscription: () => void;
+  openCustomerPortal: () => void;
+  onProfileClick: () => void;
+  // onDeleteConversation: (id: string) => void;
 }
 
 const AI_MODELS = [
@@ -32,6 +36,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewConversation,
   selectedModel,
   onModelSelect,
+  handleStartSubscription,
+  openCustomerPortal,
+  onProfileClick,
 }) => {
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,16 +49,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Mobile backdrop */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed lg:relative left-0 top-0 h-full w-80 bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 ${
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+      <div className={`fixed lg:relative left-0 top-0 h-full w-80 bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <button
@@ -77,9 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="text-sm text-gray-400">{selectedModelData.description}</div>
                 </div>
               </div>
-              <ChevronDown size={20} className={`transform transition-transform ${
-                isModelDropdownOpen ? 'rotate-180' : ''
-              }`} />
+              <ChevronDown size={20} className={`transform transition-transform ${isModelDropdownOpen ? 'rotate-180' : ''
+                }`} />
             </button>
 
             {isModelDropdownOpen && (
@@ -91,9 +96,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onModelSelect(model.id);
                       setIsModelDropdownOpen(false);
                     }}
-                    className={`w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center gap-3 ${
-                      selectedModel === model.id ? 'bg-blue-600' : ''
-                    }`}
+                    className={`w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center gap-3 ${selectedModel === model.id ? 'bg-blue-600' : ''
+                      }`}
                   >
                     <Bot size={16} />
                     <div>
@@ -104,6 +108,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ))}
               </div>
             )}
+
+            <div className='flex justify-between items-center mt-2 wbg-gray-800 p-3 rounded-lg'>
+              <div>
+                {user && user.plan === 'free' && (
+                  <button
+                    onClick={handleStartSubscription}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
+                  >
+                    Start Subscription
+                  </button>
+                )}
+              </div>
+
+              <div>
+                {user && user.plan === 'free' && (
+                  <button
+                    onClick={openCustomerPortal}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
+                  >
+                    Manage Billing
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -111,23 +139,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-2">
             {conversations.map((conv) => (
-              <button
-                key={conv.id}
-                onClick={() => onConversationSelect(conv.id)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  activeConversationId === conv.id
+              <div key={conv.id} className="relative group">
+                <button
+                  onClick={() => onConversationSelect(conv.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${activeConversationId === conv.id
                     ? 'bg-gray-700 text-white'
                     : 'text-gray-300 hover:bg-gray-800'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <MessageSquare size={18} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{conv.title}</div>
-                    <div className="text-sm text-gray-500 truncate">{conv.lastMessage}</div>
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <MessageSquare size={18} />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{conv.title}</div>
+                      <div className="text-sm text-gray-500 truncate">{conv.lastMessage}</div>
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+                {/* <button
+                  onClick={() => onDeleteConversation(conv.id)}
+                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"
+                  title="Delete conversation"
+                >
+                  ×
+                </button> */}
+              </div>
             ))}
           </div>
         </div>
@@ -136,12 +171,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {user && (
           <div className="p-4 border-t border-gray-700">
             <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <div 
+                className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer"
+                onClick={onProfileClick}
+                title="View Profile"
+              >
                 <User size={16} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-white truncate">{user.name}</div>
                 <div className="text-sm text-gray-400 truncate">{user.email}</div>
+                <div className="text-sm text-gray-400 truncate">{user.plan}</div>
               </div>
               <button
                 onClick={onSignOut}
