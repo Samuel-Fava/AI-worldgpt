@@ -3,11 +3,15 @@ import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
+import { aipRoute } from "../utils/apis";
 
 interface User {
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
+  plan: 'free' | 'premium'; // 'free' or 'premium'
+  createdAt: Date;
 }
 
 interface Message {
@@ -31,6 +35,11 @@ function App() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [isTyping, setIsTyping] = useState(false);
+  const premiumModels = [
+    'gpt', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano',
+    'claude', 'deepseek'
+  ];
+  const isPremiumModel = (model: string) => premiumModels.includes(model);
 
   // Initialize with sample conversations
   useEffect(() => {
@@ -53,13 +62,74 @@ function App() {
     setActiveConversationId('1');
   }, []);
 
-  const handleAuth = (userData: User) => {
-    setUser(userData);
-    setIsAuthModalOpen(false);
+  const fetchUser = async (token: string): Promise<User | null> => {
+    try {
+      const res = await aipRoute().get<{ user: any }>('/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const { user } = res.data;
+      return {
+            id: user.id,
+            createdAt: new Date(user.createdAt),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            plan: user.plan, // <-- include plan
+      };
+    } catch {
+          return null;
+      }
   };
+
+  const handleAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const user = await fetchUser(token);
+      if(user) {
+        setUser(user);
+        setIsAuthModalOpen(false);
+        return;
+      }
+    }
+  };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const user = await fetchUser(token);
+        if (user) {
+          setUser(user);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const handleSignOut = () => {
     setUser(null);
+  };
+
+  const handleStartSubscription = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You must be signed in to subscribe.');
+        return;
+      }
+      try {
+        const res = await aipRoute().post(
+          '/create-checkout-session',
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (res.data && res.data.url) {
+          window.location.href = res.data.url; // Redirect to Stripe checkout
+        } else {
+          alert('Failed to start subscription.');
+        }
+      } catch (err) {
+        alert('Error launching payment page.');
+      }
   };
 
   const handleNewConversation = () => {
@@ -77,8 +147,8 @@ function App() {
     setActiveConversationId(conversationId);
   };
 
-  const handleSendMessage = (content: string) => {
-    if (!activeConversationId) return;
+  const handleSendMessage = async (content: string) => {
+  if (!activeConversationId) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -87,9 +157,8 @@ function App() {
       timestamp: new Date(),
     };
 
-    // Update conversation with user message
-    setConversations(prev => 
-      prev.map(conv => 
+    setConversations(prev =>
+      prev.map(conv =>
         conv.id === activeConversationId
           ? {
               ...conv,
@@ -101,18 +170,30 @@ function App() {
       )
     );
 
-    // Simulate AI response
     setIsTyping(true);
-    setTimeout(() => {
+
+    try {
+      const headers: Record<string, string> = {};
+      if (isPremiumModel(selectedModel)) {
+        const token = localStorage.getItem('token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await aipRoute().post('/chat', {
+        message: content,
+        model: selectedModel,
+        sessionId: activeConversationId,
+      }, { headers });
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `I'm a simulated AI response using ${selectedModel}. In a real implementation, this would be connected to the actual AI service. Your message was: "${content}"`,
+        content: (res.data as { reply: string }).reply,
         sender: 'ai',
         timestamp: new Date(),
       };
 
-      setConversations(prev => 
-        prev.map(conv => 
+      setConversations(prev =>
+        prev.map(conv =>
           conv.id === activeConversationId
             ? {
                 ...conv,
@@ -122,9 +203,28 @@ function App() {
             : conv
         )
       );
+    } catch (err) {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, there was an error contacting the AI service.',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+                ...conv,
+                messages: [...conv.messages, aiMessage],
+                lastMessage: aiMessage.content,
+              }
+            : conv
+        )
+      );
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000);
-  };
+    }
+};
 
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
@@ -145,7 +245,7 @@ function App() {
       ) : (
         <>
           <Sidebar
-            user={user}
+            user={user ? { name: `${user.firstName} ${user.lastName}`, email: user.email } : null}
             onSignOut={handleSignOut}
             conversations={conversations}
             activeConversationId={activeConversationId}
@@ -156,7 +256,6 @@ function App() {
           />
 
           <ChatArea
-            activeConversationId={activeConversationId}
             selectedModel={selectedModel}
             messages={activeConversation?.messages || []}
             onSendMessage={handleSendMessage}

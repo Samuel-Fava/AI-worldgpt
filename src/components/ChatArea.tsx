@@ -9,7 +9,6 @@ interface Message {
 }
 
 interface ChatAreaProps {
-  activeConversationId: string | null;
   selectedModel: string;
   messages: Message[];
   onSendMessage: (message: string) => void;
@@ -17,7 +16,6 @@ interface ChatAreaProps {
 }
 
 export const ChatArea: React.FC<ChatAreaProps> = ({
-  activeConversationId,
   selectedModel,
   messages,
   onSendMessage,
