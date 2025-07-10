@@ -217,9 +217,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
               )}
 
               {!isLogin && (
-                <div>
+                <div className='space-y-4'>
                   <label className='block text-sm font-semibold text-gray-700 mb-2'> Full Name </label>
-                  <div className='relative magin-top-4'>
+                  <div className='relative gap-4'>
                     <User className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400' size={18} />
                     <input 
                       type="text" 
@@ -243,7 +243,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       {getFieldError('firstName')}
                     </p>
                   )}
-                <div className='margin-top-4 relative'>
+                <div className='gap-4 relative'>
                     <input 
                       type="text" 
                       placeholder='Enter your last name' 
@@ -271,7 +271,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                 </div>
               )}
 
-              <div>
+              <div className='space-y-4'>
                 <label className='block text-sm font-semihold text-gray-700 mb-2'>Email Address</label> 
                 <div className='relative'>
                     <Mail className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400' size={18}/>

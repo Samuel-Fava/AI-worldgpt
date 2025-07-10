@@ -36,6 +36,7 @@ function App() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [isTyping, setIsTyping] = useState(false);
+  const [isfreeuser, setIsfreeuser] = useState(-1);
   const premiumModels = [
     'gpt', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano',
     'claude', 'deepseek'
@@ -43,8 +44,7 @@ function App() {
   const isPremiumModel = (model: string) => premiumModels.includes(model);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<User | null>(null);
-
-
+  const GEMINI_FREE_LIMIT = 8;
 
   // Initialize with sample conversations
   useEffect(() => {
@@ -149,6 +149,7 @@ function App() {
         return;
       }
     }
+    localStorage.removeItem('geminiFreeCount');
   };
 
   useEffect(() => {
@@ -307,87 +308,107 @@ function App() {
 
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
+    if ( !user && isfreeuser > 0) 
+      setIsfreeuser(isfreeuser-1);
+    else if (!user && isfreeuser ==0 ){
+      setIsAuthModalOpen(true)
+    }
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      sender: 'user',
-      timestamp: new Date(),
-    };
+    if (!user) {
+      // Only apply limit to Gemini model
+      if (selectedModel === 'gemini') {
+        const count = parseInt(localStorage.getItem('geminiFreeCount') || '0', 10);
+        if (count >= GEMINI_FREE_LIMIT) {
+          alert('You have reached the free Gemini message limit. Please create an account to continue.');
+          setIsAuthModalOpen(true); // Open your auth modal
+          return;
+        }
+        localStorage.setItem('geminiFreeCount', (count + 1).toString());
+      }
+    } 
 
-    setConversations(prev =>
-      prev.map(conv =>
-        conv.id === activeConversationId
-          ? {
-            ...conv,
-            messages: [...conv.messages, userMessage],
-            lastMessage: content,
-            title: conv.messages.length === 0 ? content.slice(0, 30) + '...' : conv.title,
-          }
-          : conv
-      )
-    );
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content,
+        sender: 'user',
+        timestamp: new Date(),
+      };
 
-    setIsTyping(true);
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+              ...conv,
+              messages: [...conv.messages, userMessage],
+              lastMessage: content,
+              title: conv.messages.length === 0 ? content.slice(0, 30) + '...' : conv.title,
+            }
+            : conv
+        )
+      );
 
-    try {
-      const headers: Record<string, string> = {};
-      if (isPremiumModel(selectedModel)) {
-        const token = localStorage.getItem('token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+      setIsTyping(true);
+
+      try {
+        const headers: Record<string, string> = {};
+        if (isPremiumModel(selectedModel)) {
+          const token = localStorage.getItem('token');
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const res = await aipRoute().post('/chat', {
+          message: content,
+          model: selectedModel,
+          sessionId: activeConversationId,
+        }, { headers });
+
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: (res.data as { reply: string }).reply,
+          sender: 'ai',
+          timestamp: new Date(),
+        };
+
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? {
+                ...conv,
+                messages: [...conv.messages, aiMessage],
+                lastMessage: aiMessage.content,
+              }
+              : conv
+          )
+        );
+      } catch (err) {
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: 'Sorry, there was an error contacting the AI service.',
+          sender: 'ai',
+          timestamp: new Date(),
+        };
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === activeConversationId
+              ? {
+                ...conv,
+                messages: [...conv.messages, aiMessage],
+                lastMessage: aiMessage.content,
+              }
+              : conv
+          )
+        );
+      } finally {
+        setIsTyping(false);
       }
 
-      const res = await aipRoute().post('/chat', {
-        message: content,
-        model: selectedModel,
-        sessionId: activeConversationId,
-      }, { headers });
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: (res.data as { reply: string }).reply,
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-              ...conv,
-              messages: [...conv.messages, aiMessage],
-              lastMessage: aiMessage.content,
-            }
-            : conv
-        )
-      );
-    } catch (err) {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: 'Sorry, there was an error contacting the AI service.',
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === activeConversationId
-            ? {
-              ...conv,
-              messages: [...conv.messages, aiMessage],
-              lastMessage: aiMessage.content,
-            }
-            : conv
-        )
-      );
-    } finally {
-      setIsTyping(false);
-    }
   };
 
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   const handleGetStarted = () => {
-    setIsAuthModalOpen(true);
+    // setIsAuthModalOpen(true);
+    setIsfreeuser(8);
   };
 
   return (
@@ -398,7 +419,7 @@ function App() {
         onAuth={handleAuth}
       />
 
-      {!user ? (
+      {!user && isfreeuser == -1 ? (
         <Dashboard onGetStarted={handleGetStarted} />
       ) : (
         <>
