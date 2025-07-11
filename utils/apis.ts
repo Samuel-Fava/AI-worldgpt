@@ -2,7 +2,7 @@ import axios from "axios"
 
 export const aipRoute = () => {
     return axios.create({
-        baseURL: import.meta.env.VITE_API_URL,
+        baseURL: https://worldgpt.up.railway.app,
         headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
