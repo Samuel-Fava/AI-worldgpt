@@ -45,6 +45,7 @@ function App() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<User | null>(null);
   const GEMINI_FREE_LIMIT = 8;
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
 
   // Initialize with sample conversations
   useEffect(() => {
@@ -145,6 +146,8 @@ function App() {
       const user = await fetchUser(token);
       if (user) {
         setUser(user);
+        const endDate = await fetchSubscriptionEndDate();
+        setSubscriptionEndDate(endDate);
         setIsAuthModalOpen(false);
         return;
       }
@@ -189,8 +192,40 @@ function App() {
       } else {
         alert('Failed to start subscription.');
       }
-    } catch (err) {
-      alert('Error launching payment page.');
+    } catch (err: any) {
+      console.error(err);
+      // Show subscription prompt if model is for premium users only
+      if (
+        err?.response?.data?.error === "Ce modèle est réservé aux abonnés Premium." ||
+        err?.message?.includes("Ce modèle est réservé aux abonnés Premium.")
+      ) {
+        handleStartSubscription(); // Or set a modal state to show your subscription modal
+        return;
+      }
+      if (
+        err?.response?.data?.error === "Connexion requise pour ce modèle." ||
+        err?.message?.includes("Connexion requise pour ce modèle.")
+      ) {
+        setIsAuthModalOpen(true);
+        return;
+      }
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, there was an error contacting the AI service.',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+              ...conv,
+              messages: [...conv.messages, aiMessage],
+              lastMessage: aiMessage.content,
+            }
+            : conv
+        )
+      );
     }
   };
 
@@ -216,6 +251,19 @@ function App() {
       }
     } catch (error) {
       alert("Error opening Stripe customer portal:", error);
+    }
+  };
+
+  const fetchSubscriptionEndDate = async (): Promise<string | null> => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const res = await aipRoute().get<{ subscriptionEndDate: string | null }>('/api/subscription', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.data.subscriptionEndDate;
+    } catch {
+      return null;
     }
   };
 
@@ -308,9 +356,9 @@ function App() {
 
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
-    if ( !user && isfreeuser > 0) 
-      setIsfreeuser(isfreeuser-1);
-    else if (!user && isfreeuser ==0 ){
+    if (!user && isfreeuser > 0)
+      setIsfreeuser(isfreeuser - 1);
+    else if (!user && isfreeuser == 0) {
       setIsAuthModalOpen(true)
     }
 
@@ -325,12 +373,47 @@ function App() {
         }
         localStorage.setItem('geminiFreeCount', (count + 1).toString());
       }
-    } 
+    }
 
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content,
-        sender: 'user',
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content,
+      sender: 'user',
+      timestamp: new Date(),
+    };
+
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === activeConversationId
+          ? {
+            ...conv,
+            messages: [...conv.messages, userMessage],
+            lastMessage: content,
+            title: conv.messages.length === 0 ? content.slice(0, 30) + '...' : conv.title,
+          }
+          : conv
+      )
+    );
+
+    setIsTyping(true);
+
+    try {
+      const headers: Record<string, string> = {};
+      if (isPremiumModel(selectedModel)) {
+        const token = localStorage.getItem('token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await aipRoute().post('/chat', {
+        message: content,
+        model: selectedModel,
+        sessionId: activeConversationId,
+      }, { headers });
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: (res.data as { reply: string }).reply,
+        sender: 'ai',
         timestamp: new Date(),
       };
 
@@ -339,68 +422,42 @@ function App() {
           conv.id === activeConversationId
             ? {
               ...conv,
-              messages: [...conv.messages, userMessage],
-              lastMessage: content,
-              title: conv.messages.length === 0 ? content.slice(0, 30) + '...' : conv.title,
+              messages: [...conv.messages, aiMessage],
+              lastMessage: aiMessage.content,
             }
             : conv
         )
       );
-
-      setIsTyping(true);
-
-      try {
-        const headers: Record<string, string> = {};
-        if (isPremiumModel(selectedModel)) {
-          const token = localStorage.getItem('token');
-          if (token) headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const res = await aipRoute().post('/chat', {
-          message: content,
-          model: selectedModel,
-          sessionId: activeConversationId,
-        }, { headers });
-
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: (res.data as { reply: string }).reply,
-          sender: 'ai',
-          timestamp: new Date(),
-        };
-
-        setConversations(prev =>
-          prev.map(conv =>
-            conv.id === activeConversationId
-              ? {
-                ...conv,
-                messages: [...conv.messages, aiMessage],
-                lastMessage: aiMessage.content,
-              }
-              : conv
-          )
-        );
-      } catch (err) {
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: 'Sorry, there was an error contacting the AI service.',
-          sender: 'ai',
-          timestamp: new Date(),
-        };
-        setConversations(prev =>
-          prev.map(conv =>
-            conv.id === activeConversationId
-              ? {
-                ...conv,
-                messages: [...conv.messages, aiMessage],
-                lastMessage: aiMessage.content,
-              }
-              : conv
-          )
-        );
-      } finally {
-        setIsTyping(false);
+    } catch (err: any) {
+      console.error(err);
+      console.log('Error response:', err?.response?.data);
+      if (
+        err?.response?.data?.error === "Connexion requise pour ce modèle." ||
+        err?.message?.includes("Connexion requise pour ce modèle.")
+      ) {
+        setIsAuthModalOpen(true);
       }
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, there was an error contacting the AI service.',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === activeConversationId
+            ? {
+              ...conv,
+              messages: [...conv.messages, aiMessage],
+              lastMessage: aiMessage.content,
+            }
+            : conv
+        )
+      );
+    } finally {
+      setIsTyping(false);
+    }
 
   };
 
@@ -450,6 +507,8 @@ function App() {
             open={isProfileModalOpen}
             onClose={() => setIsProfileModalOpen(false)}
             profile={profile}
+            subscriptionEndDate={subscriptionEndDate}
+            onStartSubscription={handleStartSubscription}
           />
         </>
       )}
