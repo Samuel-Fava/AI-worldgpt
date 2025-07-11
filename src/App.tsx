@@ -102,18 +102,7 @@ function App() {
       alert('Failed to fetch profile.');
     }
   };
-  // const fetchUserPlan = async (): Promise<'free' | 'premium' | null> => {
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return null;
-  //   try {
-  //     const res = await aipRoute().get<{ plan: 'free' | 'premium' }>('/api/plan', {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     });
-  //     return res.data.plan;
-  //   } catch {
-  //     return null;
-  //   }
-  // };
+
 
   // const changeUserPlan = async (userId: string, plan: 'free' | 'premium') => {
   //   const adminToken = localStorage.getItem('adminToken'); // Make sure to store admin token securely
