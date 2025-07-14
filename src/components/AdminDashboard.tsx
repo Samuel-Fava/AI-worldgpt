@@ -53,7 +53,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('adminToken');
       const response = await aipRoute().get('/admin/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -68,7 +68,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
 
   const fetchUsers = async () => {
     try {
-      const response = await aipRoute().get('/admin/users');
+      const token = localStorage.getItem('adminToken');
+      const response = await aipRoute().get('/admin/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setUsers(response.data.users);
     } catch (error: any) {
       setError('Failed to fetch users');
@@ -78,8 +81,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
 
   const changePlan = async (userId: string, plan: 'free' | 'premium') => {
     try {
+      const token = localStorage.getItem('adminToken');
       const response = await aipRoute().post('/admin/change-plan', 
-        { userId, plan }
+        { userId, plan },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       
       if (response.data.success) {
@@ -95,7 +100,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('adminToken');
     onSignOut();
   };
 
