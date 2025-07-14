@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  MessageSquare, 
-  BarChart3, 
-  TrendingUp, 
-  Shield, 
+import {
+  Users,
+  MessageSquare,
+  BarChart3,
+  TrendingUp,
+  Shield,
   LogOut,
   Crown,
   UserCheck,
@@ -69,6 +69,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
   const fetchUsers = async () => {
     try {
       const response = await aipRoute().get('/admin/users');
+      console.log("Users response:", response.data);
+      
       setUsers(response.data.users);
     } catch (error: any) {
       setError('Failed to fetch users');
@@ -78,12 +80,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
 
   const changePlan = async (userId: string, plan: 'free' | 'premium') => {
     try {
-      const response = await aipRoute().post('/admin/change-plan', 
+      const response = await aipRoute().post('/admin/change-plan',
         { userId, plan }
       );
-      
+
       if (response.data.success) {
-        setUsers(prev => prev.map(user => 
+        setUsers(prev => prev.map(user =>
           user.id === userId ? { ...user, plan } : user
         ));
         alert(`User plan updated to ${plan} successfully`);
@@ -142,11 +144,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'dashboard'
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'dashboard'
                   ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2">
                 <BarChart3 size={18} />
@@ -155,11 +156,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
             </button>
             <button
               onClick={() => setActiveTab('users')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'users'
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'users'
                   ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Users size={18} />
@@ -286,12 +286,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
+                  {users.length > 0 ? users.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            {user.firstName[0]}{user.lastName[0]}
+                            {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
@@ -302,11 +302,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.plan === 'premium' 
-                            ? 'bg-yellow-100 text-yellow-800' 
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.plan === 'premium'
+                            ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
-                        }`}>
+                          }`}>
                           {user.plan === 'premium' && <Crown size={12} className="mr-1" />}
                           {user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
                         </span>
@@ -318,11 +317,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
                         <div className="flex space-x-2">
                           <button
                             onClick={() => changePlan(user.id, user.plan === 'free' ? 'premium' : 'free')}
-                            className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                              user.plan === 'free'
+                            className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-colors ${user.plan === 'free'
                                 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                              }`}
                           >
                             {user.plan === 'free' ? (
                               <>
@@ -339,7 +337,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSignOut }) => 
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4 text-sm text-gray-500">Loading</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
