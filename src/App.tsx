@@ -34,7 +34,7 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState('gpt-4');
+  const [selectedModel, setSelectedModel] = useState('gpt');
   const [isTyping, setIsTyping] = useState(false);
   const [isfreeuser, setIsfreeuser] = useState(-1);
   const premiumModels = [
@@ -345,13 +345,13 @@ function App() {
 
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
-    if (!user && isfreeuser > 0)
-      setIsfreeuser(isfreeuser - 1);
-    else if (!user && isfreeuser == 0) {
-      setIsAuthModalOpen(true)
-    }
-
     if (!user) {
+      if (isfreeuser > 0) {
+        setIsfreeuser(isfreeuser - 1);
+      } else if (isfreeuser === 0) {
+        setIsAuthModalOpen(true);
+        return; // Prevent sending the message
+      }
       // Only apply limit to Gemini model
       if (selectedModel === 'gemini') {
         const count = parseInt(localStorage.getItem('geminiFreeCount') || '0', 10);
