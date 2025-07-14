@@ -8,8 +8,8 @@ export const AdminApp: React.FC = () => {
 
   useEffect(() => {
     // Check if admin is already authenticated
-    const adminToken = localStorage.getItem('adminToken');
-    if (adminToken) {
+    const token = localStorage.getItem('token');
+    if (token) {
       setIsAuthenticated(true);
     }
     setIsLoading(false);

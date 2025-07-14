@@ -27,7 +27,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onAdminAuth }) => {
       });
 
       const { token } = response.data;
-      localStorage.setItem('adminToken', token);
+      localStorage.setItem('token', token);
       onAdminAuth(token);
     } catch (error: any) {
       setError(error.response?.data?.message || 'Invalid credentials');
