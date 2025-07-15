@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LogIn } from 'lucide-react';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { Sidebar } from './components/Sidebar';
@@ -489,6 +490,18 @@ function App() {
           // onDeleteConversation={handleDeleteConversation}
           />
 
+          {/* Login button below sidebar for non-logged users */}
+          {!user && (
+            <div className="fixed left-0 bottom-0 w-80 p-4 bg-gray-800 border-t border-gray-700 z-40">
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+              >
+                <LogIn size={18} />
+                Sign In / Sign Up
+              </button>
+            </div>
+          )}
           <ChatArea
             selectedModel={selectedModel}
             onModelSelect={setSelectedModel}
