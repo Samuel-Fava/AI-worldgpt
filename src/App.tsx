@@ -398,17 +398,11 @@ function App() {
     setIsTyping(true);
 
     try {
-      const headers: Record<string, string> = {};
-      if (isPremiumModel(selectedModel) || user) {
-        const token = localStorage.getItem('token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await aipRoute().post('/chat', {
         message: content,
         model: selectedModel,
         sessionId: activeConversationId,
-      }, { headers });
+      });
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
