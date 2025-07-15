@@ -2,30 +2,17 @@ import React, { useState } from 'react';
 import { Plus, MessageSquare, Settings, LogOut, ChevronDown, Bot, User } from 'lucide-react';
 
 interface SidebarProps {
-  user: { id: string; name: string; email: string, plan: "free" | "premium", createdAt: string; } | null;
+  user: { id: string; name: string; email: string; plan: "free" | "premium"; createdAt: string; } | null;
   onSignOut: () => void;
   conversations: Array<{ id: string; title: string; lastMessage: string }>;
   activeConversationId: string | null;
   onConversationSelect: (id: string) => void;
   onNewConversation: () => void;
-  selectedModel: string;
-  onModelSelect: (model: string) => void;
   handleStartSubscription: () => void;
   openCustomerPortal: () => void;
   onProfileClick: () => void;
-  // onDeleteConversation: (id: string) => void;
+  handleEditConversation: (id: string) => void;
 }
-
-const AI_MODELS = [
-  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient' },
-  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable' },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power' },
-  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini' },
-  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast' },
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized' },
-  { id: 'claude', name: 'Claude', description: 'Anthropic AI' },
-  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning' },
-];
 
 export const Sidebar: React.FC<SidebarProps> = ({
   user,
@@ -34,16 +21,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeConversationId,
   onConversationSelect,
   onNewConversation,
-  selectedModel,
-  onModelSelect,
   handleStartSubscription,
   openCustomerPortal,
   onProfileClick,
+  handleEditConversation,
 }) => {
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const selectedModelData = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
 
   return (
     <>
@@ -69,72 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Model Selector */}
-        <div className="p-4 border-b border-gray-700">
-          <div className="relative">
-            <button
-              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Bot size={20} />
-                <div className="text-left">
-                  <div className="font-semibold">{selectedModelData.name}</div>
-                  <div className="text-sm text-gray-400">{selectedModelData.description}</div>
-                </div>
-              </div>
-              <ChevronDown size={20} className={`transform transition-transform ${isModelDropdownOpen ? 'rotate-180' : ''
-                }`} />
-            </button>
-
-            {isModelDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-10 max-h-60 overflow-y-auto">
-                {AI_MODELS.map((model) => (
-                  <button
-                    key={model.id}
-                    onClick={() => {
-                      onModelSelect(model.id);
-                      setIsModelDropdownOpen(false);
-                    }}
-                    className={`w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors flex items-center gap-3 ${selectedModel === model.id ? 'bg-blue-600' : ''
-                      }`}
-                  >
-                    <Bot size={16} />
-                    <div>
-                      <div className="font-semibold text-white">{model.name}</div>
-                      <div className="text-sm text-gray-400">{model.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className='flex justify-between items-center mt-2 wbg-gray-800 p-3 rounded-lg'>
-              <div>
-                {user && user.plan === 'free' && (
-                  <button
-                    onClick={handleStartSubscription}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
-                  >
-                    Start Subscription
-                  </button>
-                )}
-              </div>
-
-              <div>
-                {user && user.plan === 'free' && (
-                  <button
-                    onClick={openCustomerPortal}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition"
-                  >
-                    Manage Billing
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Conversations */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-2">
@@ -155,17 +72,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                   </div>
                 </button>
-                {/* <button
-                  onClick={() => onDeleteConversation(conv.id)}
-                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"
-                  title="Delete conversation"
-                >
-                  ×
-                </button> */}
               </div>
             ))}
           </div>
         </div>
+
+        {/* Subscription Management */}
+        {user && user.plan === 'free' && (
+          <div className="p-4 border-t border-gray-700">
+            <div className="space-y-2">
+              <button
+                onClick={handleStartSubscription}
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+              >
+                Upgrade to Premium
+              </button>
+              <button
+                onClick={openCustomerPortal}
+                className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm"
+              >
+                Manage Billing
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* User Menu */}
         {user && (
@@ -181,7 +111,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-white truncate">{user.name}</div>
                 <div className="text-sm text-gray-400 truncate">{user.email}</div>
-                <div className="text-sm text-gray-400 truncate">{user.plan}</div>
+                <div className={`text-xs px-2 py-1 rounded-full ${
+                  user.plan === 'premium' 
+                    ? 'bg-yellow-600 text-yellow-100' 
+                    : 'bg-gray-600 text-gray-300'
+                }`}>
+                  {user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
+                </div>
               </div>
               <button
                 onClick={onSignOut}
