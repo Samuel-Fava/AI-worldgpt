@@ -492,13 +492,13 @@ function App() {
 
           {/* Login button below sidebar for non-logged users */}
           {!user && (
-            <div className="fixed left-0 bottom-0 w-80 p-4 bg-gray-800 border-t border-gray-700 z-40">
+            <div className="fixed left-0 bottom-0 w-80 bg-gray-900 z-40">
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                className="w-full text-white py-4 px-6 hover:bg-gray-800 transition-colors flex items-center gap-3 text-left border-t border-gray-700"
               >
-                <LogIn size={18} />
-                Sign In / Sign Up
+                <LogIn size={20} />
+                <span className="font-medium">Login</span>
               </button>
             </div>
           )}
