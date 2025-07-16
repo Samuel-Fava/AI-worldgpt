@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LogIn } from 'lucide-react';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { Sidebar } from './components/Sidebar';
@@ -36,19 +37,29 @@ function App() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState('gpt');
   const [isTyping, setIsTyping] = useState(false);
-  const [isfreeuser, setIsfreeuser] = useState(-1);
-  const premiumModels = [
-    'gpt', 'gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano',
-    'claude', 'deepseek'
-  ];
+  const [freeMessageCount, setFreeMessageCount] = useState(0);
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
+
+  // Define free and premium models
+  const freeModels = ['gpt', 'gemini'];
+  const premiumModels = ['gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano', 'claude', 'deepseek'];
   const isPremiumModel = (model: string) => premiumModels.includes(model);
+  const isFreeModel = (model: string) => freeModels.includes(model);
+  
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<User | null>(null);
-  const GEMINI_FREE_LIMIT = 8;
+  const FREE_MESSAGE_LIMIT = 8;
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
 
   // Initialize with sample conversations
   useEffect(() => {
+    // Initialize free message count from localStorage
+    const savedCount = localStorage.getItem('freeMessageCount');
+    if (savedCount) {
+      setFreeMessageCount(parseInt(savedCount, 10));
+    }
+    
     const sampleConversations: Conversation[] = [
       {
         id: '1',
@@ -103,6 +114,16 @@ function App() {
     }
   };
 
+const fetchUserPlan = async (token: string) => {
+  try {
+    const res = await aipRoute().get<{ plan: 'free' | 'premium' }>('/api/plan', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setUserPlan(res.data.plan);
+  } catch {
+    setUserPlan('free');
+  }
+};
 
   // const changeUserPlan = async (userId: string, plan: 'free' | 'premium') => {
   //   const adminToken = localStorage.getItem('adminToken'); // Make sure to store admin token securely
@@ -135,13 +156,15 @@ function App() {
       const user = await fetchUser(token);
       if (user) {
         setUser(user);
+        await fetchUserPlan(token);
         const endDate = await fetchSubscriptionEndDate();
         setSubscriptionEndDate(endDate);
         setIsAuthModalOpen(false);
+        setIsFirstTime(false);
         return;
       }
     }
-    localStorage.removeItem('geminiFreeCount');
+    setIsFirstTime(false);
   };
 
   useEffect(() => {
@@ -345,23 +368,24 @@ function App() {
 
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
+    
+    // Check if user is trying to use premium model without account
+    if (!user && isPremiumModel(selectedModel)) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    
+    // Check free message limit for non-users
     if (!user) {
-      if (isfreeuser > 0) {
-        setIsfreeuser(isfreeuser - 1);
-      } else if (isfreeuser === 0) {
+      if (freeMessageCount >= FREE_MESSAGE_LIMIT) {
         setIsAuthModalOpen(true);
-        return; // Prevent sending the message
+        return;
       }
-      // Only apply limit to Gemini model
-      if (selectedModel === 'gemini') {
-        const count = parseInt(localStorage.getItem('geminiFreeCount') || '0', 10);
-        if (count >= GEMINI_FREE_LIMIT) {
-          alert('You have reached the free Gemini message limit. Please create an account to continue.');
-          setIsAuthModalOpen(true); // Open your auth modal
-          return;
-        }
-        localStorage.setItem('geminiFreeCount', (count + 1).toString());
-      }
+      
+      // Increment free message count
+      const newCount = freeMessageCount + 1;
+      setFreeMessageCount(newCount);
+      localStorage.setItem('freeMessageCount', newCount.toString());
     }
 
     const userMessage: Message = {
@@ -387,17 +411,11 @@ function App() {
     setIsTyping(true);
 
     try {
-      const headers: Record<string, string> = {};
-      if (isPremiumModel(selectedModel)) {
-        const token = localStorage.getItem('token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await aipRoute().post('/chat', {
         message: content,
         model: selectedModel,
         sessionId: activeConversationId,
-      }, { headers });
+      });
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -452,11 +470,6 @@ function App() {
 
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
-  const handleGetStarted = () => {
-    // setIsAuthModalOpen(true);
-    setIsfreeuser(8);
-  };
-
   return (
     <div className="h-screen bg-gray-100 flex">
       <AuthModal
@@ -465,32 +478,56 @@ function App() {
         onAuth={handleAuth}
       />
 
-      {!user && isfreeuser == -1 ? (
-        <Dashboard onGetStarted={handleGetStarted} />
+      {isFirstTime ? (
+        <Dashboard onGetStarted={() => setIsFirstTime(false)} />
       ) : (
         <>
           <Sidebar
-            user={user ? { name: `${user.firstName} ${user.lastName}`, email: user.email, plan: user.plan } : null}
+            user={user ? { 
+              id: user.id,
+              name: `${user.firstName} ${user.lastName}`, 
+              email: user.email, 
+              plan: user.plan,
+              createdAt: user.createdAt.toISOString()
+            } : null}
             onSignOut={handleSignOut}
             conversations={conversations}
             activeConversationId={activeConversationId}
             onConversationSelect={handleConversationSelect}
             onNewConversation={handleNewConversation}
-            selectedModel={selectedModel}
-            onModelSelect={setSelectedModel}
             handleStartSubscription={handleStartSubscription}
             openCustomerPortal={openCustomerPortal}
             handleEditConversation={handleEditConversation}
             onProfileClick={handleProfileClick}
+            onAuthModalOpen={() => setIsAuthModalOpen(true)}
           // onDeleteConversation={handleDeleteConversation}
           />
 
+          {/* Login button below sidebar for non-logged users */}
+          {!user && (
+            <div className="fixed left-0 bottom-0 w-80 bg-gray-900 z-40">
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="w-full text-white py-4 px-6 hover:bg-gray-800 transition-colors flex items-center gap-3 text-left border-t border-gray-700"
+              >
+                <LogIn size={20} />
+                <span className="font-medium">Login</span>
+              </button>
+            </div>
+          )}
+          {isAuthModalOpen ? <></>:
           <ChatArea
             selectedModel={selectedModel}
+            onModelSelect={setSelectedModel}
+            user={user}
+            freeMessageCount={freeMessageCount}
+            freeMessageLimit={FREE_MESSAGE_LIMIT}
+            onAuthModalOpen={() => setIsAuthModalOpen(true)}
             messages={activeConversation?.messages || []}
             onSendMessage={handleSendMessage}
             isTyping={isTyping}
           />
+          }
 
           <ProfileModal
             open={isProfileModalOpen}

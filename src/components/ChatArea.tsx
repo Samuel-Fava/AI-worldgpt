@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, Crown } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -8,22 +8,57 @@ interface Message {
   timestamp: Date;
 }
 
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  plan: 'free' | 'premium';
+  createdAt: Date;
+}
+
 interface ChatAreaProps {
   selectedModel: string;
+  onModelSelect: (model: string) => void;
+  user: User | null;
+  freeMessageCount: number;
+  freeMessageLimit: number;
+  onAuthModalOpen: () => void;
   messages: Message[];
   onSendMessage: (message: string) => void;
   isTyping: boolean;
 }
 
+const AI_MODELS = [
+  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free' },
+  { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free' },
+  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium' },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium' },
+  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium' },
+  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium' },
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium' },
+  { id: 'claude', name: 'Claude', description: 'Anthropic AI', type: 'premium' },
+  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning', type: 'premium' },
+];
+
 export const ChatArea: React.FC<ChatAreaProps> = ({
   selectedModel,
+  onModelSelect,
+  user,
+  freeMessageCount,
+  freeMessageLimit,
+  onAuthModalOpen,
   messages,
   onSendMessage,
   isTyping,
 }) => {
   const [input, setInput] = useState('');
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const selectedModelData = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
+  const remainingFreeMessages = user ? Infinity : Math.max(0, freeMessageLimit - freeMessageCount);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +83,16 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     }
   };
 
+  const handleModelSelect = (modelId: string) => {
+    const model = AI_MODELS.find(m => m.id === modelId);
+    if (model?.type === 'premium' && !user) {
+      onAuthModalOpen();
+      return;
+    }
+    onModelSelect(modelId);
+    setIsModelDropdownOpen(false);
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-white lg:ml-0 ml-0">
       {/* Header */}
@@ -57,7 +102,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           <div>
             <h1 className="text-xl font-semibold text-gray-900">AI Chat</h1>
             <p className="text-sm text-gray-500">
-              Powered by {selectedModel.toUpperCase()} • {messages.length} messages
+              {messages.length} messages
+              {!user && ` • ${remainingFreeMessages} free messages remaining`}
             </p>
           </div>
         </div>
@@ -133,7 +179,85 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
       {/* Input */}
       <div className="px-6 py-4 border-t border-gray-200 bg-white">
-        <form onSubmit={handleSubmit} className="flex gap-4">
+            <form onSubmit={handleSubmit} className="flex gap-4">
+        {/* Model Selector */}
+        <div className="flex gap-4 items-start">
+          <div className="relative">
+            <button
+              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              className="flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors min-w-[200px]"
+            >
+              <div className="flex items-center gap-3">
+                <Bot size={18} />
+                <div className="text-left">
+                  <div className="font-semibold text-gray-900 flex items-center gap-2">
+                    {selectedModelData.name}
+                    {selectedModelData.type === 'premium' && (
+                      <Crown size={14} className="text-yellow-600" />
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-500">{selectedModelData.description}</div>
+                </div>
+              </div>
+              <ChevronDown size={18} className={`transform transition-transform text-gray-400 ${
+                isModelDropdownOpen ? 'rotate-180' : ''
+              }`} />
+            </button>
+
+            {isModelDropdownOpen && (
+              <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-xl z-10 min-w-[300px] max-h-60 overflow-y-auto">
+                <div className="p-2">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-3 py-2">
+                    Free Models
+                  </div>
+                  {AI_MODELS.filter(model => model.type === 'free').map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => handleModelSelect(model.id)}
+                      className={`w-full px-3 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 rounded-lg ${
+                        selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
+                      }`}
+                    >
+                      <Bot size={16} className="text-gray-600" />
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900">{model.name}</div>
+                        <div className="text-sm text-gray-500">{model.description}</div>
+                      </div>
+                    </button>
+                  ))}
+                  
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-3 py-2 mt-2 border-t border-gray-100">
+                    Premium Models
+                  </div>
+                  {AI_MODELS.filter(model => model.type === 'premium').map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => handleModelSelect(model.id)}
+                      className={`w-full px-3 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 rounded-lg ${
+                        selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
+                      } ${!user ? 'opacity-75' : ''}`}
+                    >
+                      <Bot size={16} className="text-gray-600" />
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 flex items-center gap-2">
+                          {model.name}
+                          <Crown size={14} className="text-yellow-600" />
+                        </div>
+                        <div className="text-sm text-gray-500">{model.description}</div>
+                      </div>
+                      {!user && (
+                        <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                          Login Required
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
@@ -141,18 +265,31 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none max-h-32 min-h-[48px]"
+              className="w-full h-full px-4 py-[14px] border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none max-h-32 min-h-[48px] leading-snug"
               rows={1}
             />
           </div>
-          <button
-            type="submit"
-            disabled={!input.trim()}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            <Send size={20} />
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={!input.trim() || (!user && remainingFreeMessages <= 0)}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <Send size={20} />
+            </button>
+          </div>
         </form>
+        
+        {!user && remainingFreeMessages <= 2 && (
+          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-amber-800">
+              {remainingFreeMessages === 0 
+                ? 'You\'ve reached your free message limit. Please sign in to continue.'
+                : `Only ${remainingFreeMessages} free message${remainingFreeMessages === 1 ? '' : 's'} remaining.`
+              }
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
