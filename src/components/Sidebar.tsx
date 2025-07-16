@@ -11,10 +11,14 @@ interface SidebarProps {
   handleStartSubscription: () => void;
   openCustomerPortal: () => void;
   onProfileClick: () => void;
+<<<<<<< HEAD
   onAuthModalOpen: () => void;
   handleEditConversation: (id: string) => void;
   freeMessageCount: number;
   freeMessageLimit: number;
+=======
+  handleEditConversation: (id: string) => void;
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -27,16 +31,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   handleStartSubscription,
   openCustomerPortal,
   onProfileClick,
+<<<<<<< HEAD
   onAuthModalOpen,
   freeMessageLimit,
   freeMessageCount,
+=======
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
   handleEditConversation,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [input, setInput] = useState('');
   const remainingFreeMessages = user ? Infinity : Math.max(0, freeMessageLimit - freeMessageCount);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
   return (
     <>
       {/* Mobile backdrop */}
@@ -120,10 +130,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-white truncate">{user.name}</div>
                 <div className="text-sm text-gray-400 truncate">{user.email}</div>
+<<<<<<< HEAD
                 <div className={`text-xs px-2 py-1 rounded-full ${user.plan === 'premium'
                     ? 'bg-yellow-600 text-yellow-100'
                     : 'bg-gray-600 text-gray-300'
                   }`}>
+=======
+                <div className={`text-xs px-2 py-1 rounded-full ${
+                  user.plan === 'premium' 
+                    ? 'bg-yellow-600 text-yellow-100' 
+                    : 'bg-gray-600 text-gray-300'
+                }`}>
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
                   {user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
                 </div>
               </div>

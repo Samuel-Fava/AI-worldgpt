@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
 import { Send, Bot, User, ChevronDown, Crown } from 'lucide-react';
+=======
+import { Send, Bot, User, ChevronDown, Crown, LogIn } from 'lucide-react';
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
 
 interface Message {
   id: string;
@@ -179,9 +183,14 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
       {/* Input */}
       <div className="px-6 py-4 border-t border-gray-200 bg-white">
+<<<<<<< HEAD
             <form onSubmit={handleSubmit} className="flex gap-4">
         {/* Model Selector */}
         <div className="flex gap-4 items-start">
+=======
+        {/* Model Selector */}
+        <div className="mb-4">
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
           <div className="relative">
             <button
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
@@ -258,6 +267,10 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        <form onSubmit={handleSubmit} className="flex gap-4">
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
@@ -270,6 +283,19 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             />
           </div>
           <div className="flex gap-2">
+<<<<<<< HEAD
+=======
+            {!user && (
+              <button
+                type="button"
+                onClick={onAuthModalOpen}
+                className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2 text-sm font-medium"
+              >
+                <LogIn size={16} />
+                Login
+              </button>
+            )}
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
             <button
               type="submit"
               disabled={!input.trim() || (!user && remainingFreeMessages <= 0)}

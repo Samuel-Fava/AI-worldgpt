@@ -39,8 +39,12 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [freeMessageCount, setFreeMessageCount] = useState(0);
   const [isFirstTime, setIsFirstTime] = useState(true);
+<<<<<<< HEAD
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
 
+=======
+  
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
   // Define free and premium models
   const freeModels = ['gpt', 'gemini'];
   const premiumModels = ['gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano', 'claude', 'deepseek'];
@@ -515,7 +519,10 @@ const fetchUserPlan = async (token: string) => {
               </button>
             </div>
           )}
+<<<<<<< HEAD
           {isAuthModalOpen ? <></>:
+=======
+>>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
           <ChatArea
             selectedModel={selectedModel}
             onModelSelect={setSelectedModel}
