@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogIn } from 'lucide-react';
+import { LogIn, LucideRockingChair } from 'lucide-react';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { Sidebar } from './components/Sidebar';
@@ -39,18 +39,14 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [freeMessageCount, setFreeMessageCount] = useState(0);
   const [isFirstTime, setIsFirstTime] = useState(true);
-<<<<<<< HEAD
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
 
-=======
-  
->>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
   // Define free and premium models
   const freeModels = ['gpt', 'gemini'];
   const premiumModels = ['gpt-4', 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1-mini', 'gpt-4.1-nano', 'claude', 'deepseek'];
   const isPremiumModel = (model: string) => premiumModels.includes(model);
   const isFreeModel = (model: string) => freeModels.includes(model);
-  
+
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<User | null>(null);
   const FREE_MESSAGE_LIMIT = 8;
@@ -63,7 +59,7 @@ function App() {
     if (savedCount) {
       setFreeMessageCount(parseInt(savedCount, 10));
     }
-    
+
     const sampleConversations: Conversation[] = [
       {
         id: '1',
@@ -118,42 +114,17 @@ function App() {
     }
   };
 
-const fetchUserPlan = async (token: string) => {
-  try {
-    const res = await aipRoute().get<{ plan: 'free' | 'premium' }>('/api/plan', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setUserPlan(res.data.plan);
-  } catch {
-    setUserPlan('free');
-  }
-};
-
-  // const changeUserPlan = async (userId: string, plan: 'free' | 'premium') => {
-  //   const adminToken = localStorage.getItem('adminToken'); // Make sure to store admin token securely
-  //   if (!adminToken) {
-  //     alert('Admin authentication required.');
-  //     return null;
-  //   }
-  //   try {
-  //     const res = await aipRoute().post(
-  //       '/admin/change-plan',
-  //       { userId, plan },
-  //       { headers: { Authorization: `Bearer ${adminToken}` } }
-  //     );
-  //     if (res.data && res.data.success) {
-  //       alert('User plan updated successfully.');
-  //       return res.data.user; // Updated user object
-  //     } else {
-  //       alert('Failed to update user plan.');
-  //       return null;
-  //     }
-  //   } catch (err) {
-  //     alert('Error updating user plan.');
-  //     return null;
-  //   }
-  // };
-
+  const fetchUserPlan = async (token: string) => {
+    try {
+      const res = await aipRoute().get<{ plan: 'free' | 'premium' }>('/api/plan', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUserPlan(res.data.plan);
+    } catch {
+      setUserPlan('free');
+    }
+  };
+ 
   const handleAuth = async () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -372,20 +343,20 @@ const fetchUserPlan = async (token: string) => {
 
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
-    
+
     // Check if user is trying to use premium model without account
     if (!user && isPremiumModel(selectedModel)) {
       setIsAuthModalOpen(true);
       return;
     }
-    
+
     // Check free message limit for non-users
     if (!user) {
       if (freeMessageCount >= FREE_MESSAGE_LIMIT) {
         setIsAuthModalOpen(true);
         return;
       }
-      
+
       // Increment free message count
       const newCount = freeMessageCount + 1;
       setFreeMessageCount(newCount);
@@ -414,12 +385,31 @@ const fetchUserPlan = async (token: string) => {
 
     setIsTyping(true);
 
+
     try {
-      const res = await aipRoute().post('/chat', {
-        message: content,
-        model: selectedModel,
-        sessionId: activeConversationId,
-      });
+      // Only send Authorization header if user is signed in
+      let config = undefined;
+      if (user) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config = { headers: { Authorization: `Bearer ${token}` } };
+        }
+      }
+      // Axios: if config is undefined, don't pass it
+      let res;
+      if (config) {
+        res = await aipRoute().post('/chat', {
+          message: content,
+          model: selectedModel,
+          sessionId: activeConversationId,
+        }, config);
+      } else {
+        res = await aipRoute().post('/chat', {
+          message: content,
+          model: selectedModel,
+          sessionId: activeConversationId,
+        });
+      }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -487,10 +477,10 @@ const fetchUserPlan = async (token: string) => {
       ) : (
         <>
           <Sidebar
-            user={user ? { 
+            user={user ? {
               id: user.id,
-              name: `${user.firstName} ${user.lastName}`, 
-              email: user.email, 
+              name: `${user.firstName} ${user.lastName}`,
+              email: user.email,
               plan: user.plan,
               createdAt: user.createdAt.toISOString()
             } : null}
@@ -519,21 +509,18 @@ const fetchUserPlan = async (token: string) => {
               </button>
             </div>
           )}
-<<<<<<< HEAD
-          {isAuthModalOpen ? <></>:
-=======
->>>>>>> 45f3f09b57dd7d6b2bddd7bd534a864937a77ea8
-          <ChatArea
-            selectedModel={selectedModel}
-            onModelSelect={setSelectedModel}
-            user={user}
-            freeMessageCount={freeMessageCount}
-            freeMessageLimit={FREE_MESSAGE_LIMIT}
-            onAuthModalOpen={() => setIsAuthModalOpen(true)}
-            messages={activeConversation?.messages || []}
-            onSendMessage={handleSendMessage}
-            isTyping={isTyping}
-          />
+          {isAuthModalOpen ? <></> :
+            <ChatArea
+              selectedModel={selectedModel}
+              onModelSelect={setSelectedModel}
+              user={user}
+              freeMessageCount={freeMessageCount}
+              freeMessageLimit={FREE_MESSAGE_LIMIT}
+              onAuthModalOpen={() => setIsAuthModalOpen(true)}
+              messages={activeConversation?.messages || []}
+              onSendMessage={handleSendMessage}
+              isTyping={isTyping}
+            />
           }
 
           <ProfileModal
