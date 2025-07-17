@@ -119,8 +119,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-white truncate">{user.name}</div>
-                <div className="text-sm text-gray-400 truncate">{user.email}</div>
-                <div className={`text-xs px-2 py-1 rounded-full ${user.plan === 'premium'
+                {/* <div className="text-sm text-gray-400 truncate">{user.email}</div> */}
+                <div className={`text-xs px-1 py-1 rounded-full ${user.plan === 'premium'
                     ? 'bg-yellow-600 text-yellow-100'
                     : 'bg-gray-600 text-gray-300'
                   }`}>

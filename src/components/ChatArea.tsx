@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, ChevronDown, Crown } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, Crown, Brain, Gem, Sparkles, Rocket, Zap, Cpu, MessageCircle, BookOpen } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -30,15 +30,15 @@ interface ChatAreaProps {
 }
 
 const AI_MODELS = [
-  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free' },
-  { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free' },
-  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium' },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium' },
-  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium' },
-  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium' },
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium' },
-  { id: 'claude', name: 'Claude', description: 'Anthropic AI', type: 'premium' },
-  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning', type: 'premium' },
+  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free', icon: Brain },
+  { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free', icon: Gem },
+  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium', icon: Sparkles },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium', icon: Rocket },
+  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium', icon: Zap },
+  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium', icon: Cpu },
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium', icon: MessageCircle },
+  { id: 'claude', name: 'Claude', description: 'Anthropic AI', type: 'premium', icon: BookOpen },
+  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning', type: 'premium', icon: Bot },
 ];
 
 export const ChatArea: React.FC<ChatAreaProps> = ({
@@ -95,7 +95,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
   return (
     <div className="flex-1 flex flex-col bg-white lg:ml-0 ml-0">
-      {/* Header */}
+      {/* Header
       <div className="px-6 py-4 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <Bot size={24} className="text-blue-600" />
@@ -107,7 +107,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
@@ -129,7 +129,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             >
               {message.sender === 'ai' && (
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot size={16} className="text-white" />
+                  {(() => {
+                    const model = AI_MODELS.find(m => m.id === selectedModel);
+                    const Icon = model?.icon || Bot;
+                    return <Icon size={16} className="text-white" />;
+                  })()}
                 </div>
               )}
               
@@ -188,7 +192,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               className="flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors min-w-[200px]"
             >
               <div className="flex items-center gap-3">
-                <Bot size={18} />
+                {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 18 }) : <Bot size={18} />}
                 <div className="text-left">
                   <div className="font-semibold text-gray-900 flex items-center gap-2">
                     {selectedModelData.name}
@@ -218,7 +222,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                         selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
                       }`}
                     >
-                      <Bot size={16} className="text-gray-600" />
+                      {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-gray-600' }) : <Bot size={16} className="text-gray-600" />}
                       <div className="flex-1">
                         <div className="font-semibold text-gray-900">{model.name}</div>
                         <div className="text-sm text-gray-500">{model.description}</div>
@@ -237,7 +241,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                         selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
                       } ${!user ? 'opacity-75' : ''}`}
                     >
-                      <Bot size={16} className="text-gray-600" />
+                      {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-gray-600' }) : <Bot size={16} className="text-gray-600" />}
                       <div className="flex-1">
                         <div className="font-semibold text-gray-900 flex items-center gap-2">
                           {model.name}

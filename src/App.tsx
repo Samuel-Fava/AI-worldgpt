@@ -6,6 +6,7 @@ import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { ProfileModal } from "./components/ProfileModal";
 import { aipRoute } from "../utils/apis";
+import axios from 'axios';
 
 interface User {
   id: string;
@@ -52,7 +53,7 @@ function App() {
   const FREE_MESSAGE_LIMIT = 8;
   const [subscriptionEndDate, setSubscriptionEndDate] = useState<string | null>(null);
 
-  // Initialize with sample conversations
+  // Initialize with sample conversations or load from localStorage for guests
   useEffect(() => {
     // Initialize free message count from localStorage
     const savedCount = localStorage.getItem('freeMessageCount');
@@ -60,8 +61,62 @@ function App() {
       setFreeMessageCount(parseInt(savedCount, 10));
     }
 
-    const sampleConversations: Conversation[] = [
-      {
+    // If user is not signed in, load conversations and style from localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      const savedConvs = localStorage.getItem('guestConversations');
+      const savedStyle = localStorage.getItem('guestChatStyle');
+      if (savedConvs) {
+        try {
+          const parsed = JSON.parse(savedConvs);
+          // Convert timestamps back to Date objects
+          parsed.forEach((conv: any) => {
+            conv.messages.forEach((msg: any) => {
+              msg.timestamp = new Date(msg.timestamp);
+            });
+          });
+          setConversations(parsed);
+          if (parsed.length > 0) setActiveConversationId(parsed[0].id);
+        } catch {
+          // fallback to sample
+          setConversations([{
+            id: '1',
+            title: 'Welcome to AI Chat',
+            lastMessage: 'Hello! How can I help you today?',
+            messages: [
+              {
+                id: '1-1',
+                content: 'Hello! How can I help you today?',
+                sender: 'ai',
+                timestamp: new Date(Date.now() - 60000),
+              },
+            ],
+          }]);
+          setActiveConversationId('1');
+        }
+      } else {
+        setConversations([{
+          id: '1',
+          title: 'Welcome to AI Chat',
+          lastMessage: 'Hello! How can I help you today?',
+          messages: [
+            {
+              id: '1-1',
+              content: 'Hello! How can I help you today?',
+              sender: 'ai',
+              timestamp: new Date(Date.now() - 60000),
+            },
+          ],
+        }]);
+        setActiveConversationId('1');
+      }
+      // Restore guest chat style/theme if present
+      if (savedStyle) {
+        document.body.setAttribute('data-chat-style', savedStyle);
+      }
+    } else {
+      // If signed in, fallback to sample until backend loads
+      setConversations([{
         id: '1',
         title: 'Welcome to AI Chat',
         lastMessage: 'Hello! How can I help you today?',
@@ -73,10 +128,9 @@ function App() {
             timestamp: new Date(Date.now() - 60000),
           },
         ],
-      },
-    ];
-    setConversations(sampleConversations);
-    setActiveConversationId('1');
+      }]);
+      setActiveConversationId('1');
+    }
   }, []);
 
   const fetchUser = async (token: string): Promise<User | null> => {
@@ -124,10 +178,44 @@ function App() {
       setUserPlan('free');
     }
   };
- 
+
   const handleAuth = async () => {
     const token = localStorage.getItem('token');
     if (token) {
+      // On sign-in, migrate guest conversations and style to backend if they exist
+      const guestConvs = localStorage.getItem('guestConversations');
+      const guestStyle = localStorage.getItem('guestChatStyle');
+      if (guestConvs) {
+        try {
+          const parsed = JSON.parse(guestConvs);
+          // For each guest conversation, send to backend
+          for (const conv of parsed) {
+            // Only migrate if there are messages
+            if (conv.messages && conv.messages.length > 0) {
+              await aipRoute().post('/api/history/import', {
+                id: conv.id,
+                title: conv.title,
+                lastMessage: conv.lastMessage,
+                messages: conv.messages.map((msg: any) => ({
+                  id: msg.id,
+                  content: msg.content,
+                  sender: msg.sender,
+                  timestamp: msg.timestamp,
+                })),
+                // Optionally migrate style/theme if present
+                style: guestStyle || undefined,
+              }, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+            }
+          }
+        } catch (e) {
+          // ignore migration errors
+        }
+        // Clear guest conversations and style after migration
+        localStorage.removeItem('guestConversations');
+        localStorage.removeItem('guestChatStyle');
+      }
       const user = await fetchUser(token);
       if (user) {
         setUser(user);
@@ -136,6 +224,8 @@ function App() {
         setSubscriptionEndDate(endDate);
         setIsAuthModalOpen(false);
         setIsFirstTime(false);
+        // Restore style/theme from backend if available (optional, backend must support)
+        // If not, fallback to default or previously set style
         return;
       }
     }
@@ -158,6 +248,8 @@ function App() {
   const handleSignOut = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Clear guest conversations on signout
+    localStorage.removeItem('guestConversations');
     window.location.href = '/login'; // Redirect to home page
     setUser(null);
   };
@@ -257,27 +349,49 @@ function App() {
   const fetchUserConversations = async (): Promise<Conversation[] | null> => {
     const token = localStorage.getItem('token');
     if (!token) return null;
+
     try {
       const res = await aipRoute().get<{ success: boolean; conversations: any[] }>('/api/history/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
+
       console.log('API response:', res.data);
-      if (res.data && res.data.success && Array.isArray(res.data.conversations)) {
-        // Map API data to your Conversation type
-        return res.data.conversations.map(conv => ({
-          id: conv.id,
-          title: conv.messages.length > 0 ? conv.messages[0].text.slice(0, 10) + '...' : 'New Conversation',
-          lastMessage: conv.messages.length > 0 ? conv.messages[conv.messages.length - 1].text : 'No messages yet',
-          messages: conv.messages.map((msg: any) => ({
-            id: msg.id,
-            content: msg.text,
-            sender: msg.role,
-            timestamp: new Date(msg.timestamp),
-          })),
-        }));
+
+      if (res.data.success && Array.isArray(res.data.conversations)) {
+        console.log("Loaded conversations:", res.data.conversations);
+
+        const sessionMap: Record<string, { id: string; title: string; messages: Message[] }> = {};
+        res.data.conversations.forEach((conversation: any) => {
+          const sessionId = conversation.sessionId || 'unknown-session';
+          if (!sessionMap[sessionId]) {
+            sessionMap[sessionId] = {
+              id: sessionId,
+              title: conversation.sessionTitle || `Chat ${Object.keys(sessionMap).length + 1}`,
+              messages: []
+            };
+          }
+          // Flatten conversation.messages [{role, text}] into session messages
+          if (Array.isArray(conversation.messages)) {
+            conversation.messages.forEach((msg: any, idx: number) => {
+              sessionMap[sessionId].messages.push({
+                id: `${conversation.id || sessionId}-${idx}`,
+                content: msg.text,
+                sender: msg.role === 'ai' ? 'ai' : msg.role,
+                timestamp: conversation.createdAt ? new Date(conversation.createdAt) : new Date(),
+                model: msg.role === 'ai' ? conversation.model : undefined
+              });
+            });
+            // Sort messages by timestamp ascending
+            sessionMap[sessionId].messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+          }
+        });
+        const loadedSessions = Object.values(sessionMap);
+        return loadedSessions;
       }
+
       return null;
-    } catch {
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
       return null;
     }
   };
@@ -286,15 +400,21 @@ function App() {
     const loadConversations = async () => {
       const conversations = await fetchUserConversations();
       console.log('Fetched conversations:', conversations);
+
       if (conversations && conversations.length > 0) {
         setConversations(conversations);
         setActiveConversationId(conversations[0].id);
+      } else {
+        setConversations([]);
+        setActiveConversationId(null);
       }
     };
+
     if (user) {
       loadConversations();
     }
   }, [user]);
+
 
   const handleNewConversation = () => {
     const newConversation: Conversation = {
@@ -303,7 +423,14 @@ function App() {
       lastMessage: 'New conversation started',
       messages: [],
     };
-    setConversations([newConversation, ...conversations]);
+    setConversations(prev => {
+      const updated = [newConversation, ...prev];
+      // Save to localStorage for guests
+      if (!user) {
+        localStorage.setItem('guestConversations', JSON.stringify(updated));
+      }
+      return updated;
+    });
     setActiveConversationId(newConversation.id);
   };
 
@@ -311,31 +438,17 @@ function App() {
     // Example: prompt for new title
     const newTitle = prompt('Edit conversation title:');
     if (newTitle) {
-      setConversations(prev =>
-        prev.map(conv =>
+      setConversations(prev => {
+        const updated = prev.map(conv =>
           conv.id === conversationId ? { ...conv, title: newTitle } : conv
-        )
-      );
+        );
+        if (!user) {
+          localStorage.setItem('guestConversations', JSON.stringify(updated));
+        }
+        return updated;
+      });
     }
   };
-
-  // const handleDeleteConversation = async (conversationId: string) => {
-  //   const token = localStorage.getItem('token');
-  //   if (!token) return;
-
-  //   try {
-  //     await aipRoute().delete(`/api/history/${conversationId}`, {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     });
-  //     setConversations(prev => prev.filter(conv => conv.id !== conversationId));
-  //     if (activeConversationId === conversationId) {
-  //       setActiveConversationId(null);
-  //     }
-  //   } catch (err) {
-  //     alert('Failed to delete conversation.');
-  //   }
-  // };
-
 
   const handleConversationSelect = (conversationId: string) => {
     setActiveConversationId(conversationId);
@@ -344,20 +457,18 @@ function App() {
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
 
-    // Check if user is trying to use premium model without account
+    // Prevent non-logged users from using premium models
     if (!user && isPremiumModel(selectedModel)) {
       setIsAuthModalOpen(true);
       return;
     }
 
-    // Check free message limit for non-users
+    // Enforce free-message limit for guest users
     if (!user) {
       if (freeMessageCount >= FREE_MESSAGE_LIMIT) {
         setIsAuthModalOpen(true);
         return;
       }
-
-      // Increment free message count
       const newCount = freeMessageCount + 1;
       setFreeMessageCount(newCount);
       localStorage.setItem('freeMessageCount', newCount.toString());
@@ -377,37 +488,51 @@ function App() {
             ...conv,
             messages: [...conv.messages, userMessage],
             lastMessage: content,
-            title: conv.messages.length === 0 ? content.slice(0, 30) + '...' : conv.title,
+            title:
+              conv.messages.length === 0
+                ? content.slice(0, 30) + '...'
+                : conv.title,
           }
           : conv
       )
     );
+    if (!user) {
+      localStorage.setItem(
+        'guestConversations',
+        JSON.stringify(conversations)
+      );
+    }
 
     setIsTyping(true);
 
-
     try {
-      // Only send Authorization header if user is signed in
-      let config = undefined;
+      let res;
+
       if (user) {
         const token = localStorage.getItem('token');
-        if (token) {
-          config = { headers: { Authorization: `Bearer ${token}` } };
-        }
-      }
-      // Axios: if config is undefined, don't pass it
-      let res;
-      if (config) {
-        res = await aipRoute().post('/chat', {
-          message: content,
-          model: selectedModel,
-          sessionId: activeConversationId,
-        }, config);
+        const config = token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : undefined;
+
+        res = await aipRoute().post(
+          '/chat',
+          {
+            message: content,
+            model: selectedModel,
+            sessionId: activeConversationId,
+          },
+          config
+        );
       } else {
+        // // Isolated Axios for guests
+        // const guestAxios = axios.create({
+        //   baseURL: 'https://worldgpt.up.railway.app',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   withCredentials: false,
+        // });
         res = await aipRoute().post('/chat', {
           message: content,
-          model: selectedModel,
-          sessionId: activeConversationId,
+          model: selectedModel
         });
       }
 
@@ -429,22 +554,34 @@ function App() {
             : conv
         )
       );
+      if (!user) {
+        localStorage.setItem(
+          'guestConversations',
+          JSON.stringify(conversations)
+        );
+      }
     } catch (err: any) {
       console.error(err);
       console.log('Error response:', err?.response?.data);
+
       if (
-        err?.response?.data?.error === "Connexion requise pour ce modèle." ||
-        err?.message?.includes("Connexion requise pour ce modèle.")
+        err?.response?.data?.error ===
+        'Connexion requise pour ce modèle.' ||
+        err?.message?.includes(
+          'Connexion requise pour ce modèle.'
+        )
       ) {
         setIsAuthModalOpen(true);
       }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Sorry, there was an error contacting the AI service.',
+        content:
+          'Sorry, there was an error contacting the AI service.',
         sender: 'ai',
         timestamp: new Date(),
       };
+
       setConversations(prev =>
         prev.map(conv =>
           conv.id === activeConversationId
@@ -456,11 +593,17 @@ function App() {
             : conv
         )
       );
+      if (!user) {
+        localStorage.setItem(
+          'guestConversations',
+          JSON.stringify(conversations)
+        );
+      }
     } finally {
       setIsTyping(false);
     }
-
   };
+
 
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
