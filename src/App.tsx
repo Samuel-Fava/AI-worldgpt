@@ -22,6 +22,7 @@ interface Message {
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  model?: string;
 }
 
 interface Conversation {
@@ -457,7 +458,7 @@ function App() {
   const handleSendMessage = async (content: string) => {
     if (!activeConversationId) return;
 
-    // Prevent non-logged users from using premium models
+    //  Prevent non-logged users from using premium models
     if (!user && isPremiumModel(selectedModel)) {
       setIsAuthModalOpen(true);
       return;
@@ -541,6 +542,7 @@ function App() {
         content: (res.data as { reply: string }).reply,
         sender: 'ai',
         timestamp: new Date(),
+        model: selectedModel,
       };
 
       setConversations(prev =>

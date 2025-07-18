@@ -6,6 +6,7 @@ interface Message {
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  model: string;
 }
 
 interface User {
@@ -33,7 +34,7 @@ const AI_MODELS = [
   { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free', icon: Brain },
   { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free', icon: Gem },
   { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium', icon: Sparkles },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium', icon: Rocket },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium', icon: Rocket }, 
   { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium', icon: Zap },
   { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium', icon: Cpu },
   { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium', icon: MessageCircle },
@@ -130,7 +131,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               {message.sender === 'ai' && (
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                   {(() => {
-                    const model = AI_MODELS.find(m => m.id === selectedModel);
+                    console.log(message)
+                    const model = AI_MODELS.find(m => m.id === message.model);
                     const Icon = model?.icon || Bot;
                     return <Icon size={16} className="text-white" />;
                   })()}
@@ -166,7 +168,13 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         {isTyping && (
           <div className="flex gap-4">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <Bot size={16} className="text-white" />
+              {
+                (() => {
+                  const model = AI_MODELS.find(m => m.id === selectedModel);
+                  const Icon = model?.icon || Bot;
+                  return <Icon size={16} className="text-white" />;
+                })()
+              }
             </div>
             <div className="bg-gray-100 px-4 py-3 rounded-2xl">
               <div className="flex space-x-1">
