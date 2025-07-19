@@ -41,6 +41,7 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [freeMessageCount, setFreeMessageCount] = useState(0);
   const [isFirstTime, setIsFirstTime] = useState(true);
+  const [isSidebarshow, setIsSidebarShow] = useState(true);
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
 
   // Define free and premium models
@@ -622,7 +623,7 @@ function App() {
         <Dashboard onGetStarted={() => setIsFirstTime(false)} />
       ) : (
         <>
-          <Sidebar
+          {isSidebarshow ? <Sidebar
             user={user ? {
               id: user.id,
               name: `${user.firstName} ${user.lastName}`,
@@ -640,8 +641,10 @@ function App() {
             handleEditConversation={handleEditConversation}
             onProfileClick={handleProfileClick}
             onAuthModalOpen={() => setIsAuthModalOpen(true)}
+            setSidebarstatus={() => setIsSidebarShow(!isSidebarshow)}
+            sidebarStatus={isSidebarshow}
           // onDeleteConversation={handleDeleteConversation}
-          />
+          /> : <></>}
 
           {/* Login button below sidebar for non-logged users */}
           {!user && (
@@ -666,6 +669,8 @@ function App() {
               messages={activeConversation?.messages || []}
               onSendMessage={handleSendMessage}
               isTyping={isTyping}
+              setSidebarstatus={() => setIsSidebarShow(!isSidebarshow)}
+              sidebarStatus={isSidebarshow}
             />
           }
 

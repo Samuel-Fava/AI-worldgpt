@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, MessageSquare, Settings, LogOut, ChevronDown, Bot, User, LogIn } from 'lucide-react';
+import { Plus, MessageSquare, Settings, LogOut, ChevronDown, Bot, User, LogIn, PanelLeft } from 'lucide-react';
 
 interface SidebarProps {
   user: { id: string; name: string; email: string; plan: "free" | "premium"; createdAt: string; } | null;
@@ -31,6 +31,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   freeMessageLimit,
   freeMessageCount,
   handleEditConversation,
+  sidebarStatus,
+  setSidebarstatus,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -48,11 +50,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Sidebar */}
-      <div className={`fixed lg:relative left-0 top-0 h-full w-80 bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      <div className={`fixed lg:relative left-0 top-0 h-full w-80 dark:bg-gray-900 bg-gray-200 flex flex-col z-50 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         {/* Header */}
-        <div className="p-4 border-b border-gray-700 text-center text-white" >
-          World GPT
+        
+        <div className='flex justify-between'>
+          <button
+            className="w-10 h-10 flex items-center justify-center ml-2 mt-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+            onClick={setSidebarstatus}
+            title="Toggle Sidebar"
+          >
+            <PanelLeft size={24} />
+          </button>
+
+          <div className="p-4 border-b w-full border-gray-200 dark:border-gray-700 text-center text-gray-900 dark:text-white">
+            World GPT
+          </div>
         </div>
 
         <div className="p-4 border-b border-gray-700">
@@ -72,16 +85,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div key={conv.id} className="relative group">
                 <button
                   onClick={() => onConversationSelect(conv.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${activeConversationId === conv.id
-                    ? 'bg-gray-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-800'
-                    }`}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                    activeConversationId === conv.id
+                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <MessageSquare size={18} />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{conv.title}</div>
-                      <div className="text-sm text-gray-500 truncate">{conv.lastMessage}</div>
+                      <div className="font-medium text-gray-900 dark:text-white truncate">{conv.title}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{conv.lastMessage}</div>
                     </div>
                   </div>
                 </button>
@@ -96,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="space-y-2">
               <button
                 onClick={handleStartSubscription}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+                className="w-full bg-blue-600 text-white  px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition text-sm"
               >
                 Upgrade to Premium
               </button>
@@ -113,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* User Menu */}
         {user ? (
           <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-800">
               <div
                 className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer"
                 onClick={onProfileClick}
@@ -122,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <User size={16} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-white truncate">{user.name}</div>
+                <div className="font-medium text-gray-900 dark:text-white truncate">{user.name}</div>
                 {/* <div className="text-sm text-gray-400 truncate">{user.email}</div> */}
                 <div className={`text-xs px-1 py-1 rounded-full ${user.plan === 'premium'
                     ? 'bg-yellow-600 text-yellow-100'
@@ -159,7 +173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile menu toggle */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-30 p-2 bg-gray-900 text-white rounded-lg"
+        className="lg:hidden fixed top-4 left-4 z-30 p-2 bg-gray-200 dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg"
       >
         <MessageSquare size={20} />
       </button>

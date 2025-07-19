@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, ChevronDown, Crown } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, Crown, PanelLeft} from 'lucide-react';
 import { BsStars  } from 'react-icons/bs';
 import { SiOpenai } from "react-icons/si";
 import ClaudeAIIcon from "./ClaudeAIIcon";
 import DeepSeekAIIcon from './DeepSeekAIIcon';
+import ThemeToggle from './ThemeToggle';
 
 interface Message {
   id: string;
@@ -13,19 +14,10 @@ interface Message {
   model: string;
 }
 
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  plan: 'free' | 'premium';
-  createdAt: Date;
-}
-
 interface ChatAreaProps {
   selectedModel: string;
   onModelSelect: (model: string) => void;
-  user: User | null;
+  user: { id: string; firstName: string; lastName: string; email: string; plan: "free" | "premium"; createdAt: Date; } | null;
   freeMessageCount: number;
   freeMessageLimit: number;
   onAuthModalOpen: () => void;
@@ -56,6 +48,9 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   messages,
   onSendMessage,
   isTyping,
+  setSidebarstatus,
+  sidebarStatus,
+  onProfileClick,
 }) => {
   const [input, setInput] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
@@ -99,7 +94,43 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white lg:ml-0 ml-0">
+    
+    <div className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white w-full h-full p-2 transition-colors duration-300">
+    <div className="flex-1 rounded-xl bg-white dark:bg-gray-800 w-full h-full flex flex-col overflow-hidden relative transition-colors duration-300">
+      
+      { sidebarStatus ? 
+      <div className='flex justify-end'>
+        <div className='flex justify-content'>
+          <div
+            className="w-10 h-10 bg-blue-600 mt-2 mr-2 flex items-center justify-center cursor-pointer"
+            onClick={onProfileClick}
+            title="View Profile"
+          >
+            <User size={16} className="text-white" />
+          </div>
+          <ThemeToggle/>
+        </div>
+      </div> : 
+      <div className='flex justify-between'>
+        <button
+          className="w-10 h-10 flex items-center justify-center ml-2 mt-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+          onClick={setSidebarstatus}
+          title="Toggle Sidebar"
+        >
+          <PanelLeft size={24} />
+        </button> 
+        <div className='flex justify-content'>
+          <div
+            className="w-10 h-10 bg-blue-600 mt-2 mr-2 rounded-full flex items-center justify-center cursor-pointer"
+            onClick={onProfileClick}
+            title="View Profile"
+          >
+            <User size={16} className="text-white" />
+          </div>
+          <ThemeToggle/>
+        </div>
+      </div>}
+      {/* <button className='w-10 h-10' onClick={setSidebarstatus}>12345</button> */}
       {/* Header
       <div className="px-6 py-4 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
@@ -144,13 +175,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               )}
               
               <div className={`max-w-3xl ${message.sender === 'user' ? 'order-first' : ''}`}>
-                <div
-                  className={`px-4 py-3 rounded-2xl ${
-                    message.sender === 'user'
-                      ? 'bg-blue-600 text-white ml-auto'
-                      : 'bg-gray-100 text-gray-900'
-                  }`}
-                >
+                <div className={`px-4 py-3 rounded-2xl ${
+                  message.sender === 'user'
+                    ? 'bg-blue-600 text-white ml-auto'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                }`}>
                   <p className="whitespace-pre-wrap">{message.content}</p>
                 </div>
                 <div className={`text-xs text-gray-500 mt-1 ${
@@ -180,7 +209,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                 })()
               }
             </div>
-            <div className="bg-gray-100 px-4 py-3 rounded-2xl">
+            <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 rounded-2xl">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -194,25 +223,25 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       </div>
 
       {/* Input */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-white">
+      <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 transition-colors">
             <form onSubmit={handleSubmit} className="flex gap-4">
         {/* Model Selector */}
         <div className="flex gap-4 items-start">
           <div className="relative">
             <button
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors min-w-[200px]"
+              className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-w-[200px] text-gray-900 dark:text-white"
             >
               <div className="flex items-center gap-3">
                 {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 18, color: "black" }) : <Bot size={18} />}
                 <div className="text-left">
-                  <div className="font-semibold text-gray-900 flex items-center gap-2">
+                  <div className="font-semibold text-gray-900 flex items-center gap-2 dark:text-white">
                     {selectedModelData.name}
                     {selectedModelData.type === 'premium' && (
                       <Crown size={14} className="text-yellow-600" />
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">{selectedModelData.description}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{selectedModelData.description}</div>
                 </div>
               </div>
               <ChevronDown size={18} className={`transform transition-transform text-gray-400 ${
@@ -221,23 +250,23 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             </button>
 
             {isModelDropdownOpen && (
-              <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-xl z-10 min-w-[300px] max-h-60 overflow-y-auto">
+              <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-10 min-w-[300px] max-h-60 overflow-y-auto text-gray-900 dark:text-white transition-colors">
                 <div className="p-2">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-3 py-2">
+                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide px-3 py-2">
                     Free Models
                   </div>
                   {AI_MODELS.filter(model => model.type === 'free').map((model) => (
                     <button
                       key={model.id}
                       onClick={() => handleModelSelect(model.id)}
-                      className={`w-full px-3 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 rounded-lg ${
-                        selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
-                      }`}
+                      className={`w-full px-3 py-3 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent ${
+                        selectedModel === model.id ? 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-600' : ''
+                      } transition-colors flex items-center gap-3 rounded-lg text-gray-900 dark:text-white`}
                     >
                       {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-gray-600' }) : <Bot size={16} className="text-gray-600" />}
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{model.name}</div>
-                        <div className="text-sm text-gray-500">{model.description}</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">{model.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{model.description}</div>
                       </div>
                     </button>
                   ))}
@@ -249,17 +278,17 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                     <button
                       key={model.id}
                       onClick={() => handleModelSelect(model.id)}
-                      className={`w-full px-3 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 rounded-lg ${
-                        selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
-                      } ${!user ? 'opacity-75' : ''}`}
+                      className={`w-full px-3 py-3 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent ${
+                        selectedModel === model.id ? 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-600' : ''
+                      } transition-colors flex items-center gap-3 rounded-lg text-gray-900 dark:text-white`}
                     >
                       {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-black-600', color: 'black' }) : <Bot size={16} className="text-gray-600" />}
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900 flex items-center gap-2">
+                        <div className="font-semibold text-gray-900 flex items-center gap-2 dark:text-white">
                           {model.name}
                           <Crown size={14} className="text-yellow-600" />
                         </div>
-                        <div className="text-sm text-gray-500">{model.description}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{model.description}</div>
                       </div>
                       {!user && (
                         <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
@@ -281,7 +310,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
-              className="w-full h-full px-4 py-[14px] border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none max-h-32 min-h-[48px] leading-snug"
+              className="w-full h-full px-4 py-[14px] border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none max-h-32 min-h-[48px] leading-snug"
               rows={1}
             />
           </div>
@@ -307,6 +336,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };
