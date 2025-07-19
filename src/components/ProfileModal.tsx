@@ -31,8 +31,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose, profi
         {/* Avatar */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold mb-2 shadow">
-            {profile.firstName[0]}
-            {profile.lastName[0]}
+            {profile.firstName}
+            {profile.lastName}
           </div>
           <div className="text-xl font-semibold text-gray-900">
             {profile.firstName} {profile.lastName}

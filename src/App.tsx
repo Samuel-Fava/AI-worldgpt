@@ -4,6 +4,7 @@ import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
+import { Header } from './components/Header';
 import { ProfileModal } from "./components/ProfileModal";
 import { aipRoute } from "../utils/apis";
 import axios from 'axios';
@@ -43,6 +44,9 @@ function App() {
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [isSidebarshow, setIsSidebarShow] = useState(true);
   const [userPlan, setUserPlan] = useState<'free' | 'premium'>('free');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Define free and premium models
   const freeModels = ['gpt', 'gemini'];
@@ -453,6 +457,22 @@ function App() {
     }
   };
 
+  const handleSearch = () => {
+    setIsSearchOpen(true);
+    // Implement search functionality
+    console.log('Search conversations...');
+  };
+
+  const handleSettings = () => {
+    // Implement settings modal
+    console.log('Open settings...');
+  };
+
+  const handleToggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    // Apply theme changes
+    document.documentElement.classList.toggle('dark', !isDarkMode);
+  };
   const handleConversationSelect = (conversationId: string) => {
     setActiveConversationId(conversationId);
   };
@@ -631,6 +651,9 @@ function App() {
               plan: user.plan,
               createdAt: user.createdAt.toISOString()
             } : null}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             onSignOut={handleSignOut}
             conversations={conversations}
             activeConversationId={activeConversationId}
@@ -645,7 +668,7 @@ function App() {
             sidebarStatus={isSidebarshow}
           // onDeleteConversation={handleDeleteConversation}
           /> : <></>}
-
+          
           {/* Login button below sidebar for non-logged users */}
           {!user && (
             <div className="fixed left-0 bottom-0 w-80 bg-gray-900 z-40">
@@ -671,6 +694,7 @@ function App() {
               isTyping={isTyping}
               setSidebarstatus={() => setIsSidebarShow(!isSidebarshow)}
               sidebarStatus={isSidebarshow}
+              onProfileClick= {handleProfileClick}
             />
           }
 

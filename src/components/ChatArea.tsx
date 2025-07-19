@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, ChevronDown, Crown, PanelLeft} from 'lucide-react';
 import { BsStars  } from 'react-icons/bs';
 import { SiOpenai } from "react-icons/si";
-import ClaudeAIIcon from "./ClaudeAIIcon";
+import ClaudeAIIcon from "./claudeAIIcon";
 import DeepSeekAIIcon from './DeepSeekAIIcon';
 import ThemeToggle from './ThemeToggle';
+import { HiAdjustmentsHorizontal } from 'react-icons/hi2';
 
 interface Message {
   id: string;
@@ -24,6 +25,9 @@ interface ChatAreaProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
   isTyping: boolean;
+  setSidebarstatus: () => void;
+  sidebarStatus: boolean;
+  onProfileClick: () => void;
 }
 
 const AI_MODELS = [
@@ -93,6 +97,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     setIsModelDropdownOpen(false);
   };
 
+  const onsidebarbutton = () => {
+    console.log('Sidebar button clicked');
+    setSidebarstatus();
+  };
+
   return (
     
     <div className="bg-gray-200 dark:bg-gray-900 text-black dark:text-white w-full h-full p-2 transition-colors duration-300">
@@ -106,7 +115,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             onClick={onProfileClick}
             title="View Profile"
           >
-            <User size={16} className="text-white" />
+            <HiAdjustmentsHorizontal size={16} className="text-white" />
           </div>
           <ThemeToggle/>
         </div>
@@ -114,7 +123,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       <div className='flex justify-between'>
         <button
           className="w-10 h-10 flex items-center justify-center ml-2 mt-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-          onClick={setSidebarstatus}
+          onClick={onsidebarbutton}
           title="Toggle Sidebar"
         >
           <PanelLeft size={24} />
@@ -125,25 +134,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             onClick={onProfileClick}
             title="View Profile"
           >
-            <User size={16} className="text-white" />
+            <HiAdjustmentsHorizontal size={16} className="text-white" />
           </div>
           <ThemeToggle/>
         </div>
       </div>}
-      {/* <button className='w-10 h-10' onClick={setSidebarstatus}>12345</button> */}
-      {/* Header
-      <div className="px-6 py-4 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <Bot size={24} className="text-blue-600" />
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">AI Chat</h1>
-            <p className="text-sm text-gray-500">
-              {messages.length} messages
-              {!user && ` • ${remainingFreeMessages} free messages remaining`}
-            </p>
-          </div>
-        </div>
-      </div> */}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
