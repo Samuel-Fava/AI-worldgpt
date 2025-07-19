@@ -363,11 +363,12 @@ function App() {
 
         const sessionMap: Record<string, { id: string; title: string; messages: Message[] }> = {};
         res.data.conversations.forEach((conversation: any) => {
+          console.log('Conversation', conversation)
           const sessionId = conversation.sessionId || 'unknown-session';
           if (!sessionMap[sessionId]) {
             sessionMap[sessionId] = {
               id: sessionId,
-              title: conversation.sessionTitle || `Chat ${Object.keys(sessionMap).length + 1}`,
+              title: conversation.messages[0]?.text.slice(0, 30) + ' ...' || 'New Chat',
               messages: []
             };
           }

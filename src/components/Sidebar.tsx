@@ -51,6 +51,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className={`fixed lg:relative left-0 top-0 h-full w-80 bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         {/* Header */}
+        <div className="p-4 border-b border-gray-700 text-center text-white" >
+          World GPT
+        </div>
+
         <div className="p-4 border-b border-gray-700">
           <button
             onClick={onNewConversation}

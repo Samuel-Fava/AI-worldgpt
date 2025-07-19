@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, ChevronDown, Crown, Brain, Gem, Sparkles, Rocket, Zap, Cpu, MessageCircle, BookOpen } from 'lucide-react';
+import { Send, Bot, User, ChevronDown, Crown } from 'lucide-react';
+import { BsStars  } from 'react-icons/bs';
+import { SiOpenai } from "react-icons/si";
+import ClaudeAIIcon from "./ClaudeAIIcon";
+import DeepSeekAIIcon from './DeepSeekAIIcon';
 
 interface Message {
   id: string;
@@ -31,15 +35,15 @@ interface ChatAreaProps {
 }
 
 const AI_MODELS = [
-  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free', icon: Brain },
-  { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free', icon: Gem },
-  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium', icon: Sparkles },
-  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium', icon: Rocket }, 
-  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium', icon: Zap },
-  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium', icon: Cpu },
-  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium', icon: MessageCircle },
-  { id: 'claude', name: 'Claude', description: 'Anthropic AI', type: 'premium', icon: BookOpen },
-  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning', type: 'premium', icon: Bot },
+  { id: 'gpt', name: 'GPT-3.5', description: 'Fast and efficient', type: 'free', icon: SiOpenai },
+  { id: 'gemini', name: 'Gemini', description: 'Google AI', type: 'free', icon: BsStars },
+  { id: 'gpt-4', name: 'GPT-4', description: 'Most capable', type: 'premium', icon: SiOpenai },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: 'Compact power', type: 'premium', icon: SiOpenai }, 
+  { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', description: 'Latest mini', type: 'premium', icon: SiOpenai },
+  { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', description: 'Ultra-fast', type: 'premium', icon: SiOpenai },
+  { id: 'gpt-4o', name: 'GPT-4o', description: 'Optimized', type: 'premium', icon: SiOpenai },
+  { id: 'claude', name: 'Claude', description: 'Anthropic AI', type: 'premium', icon: ClaudeAIIcon },
+  { id: 'deepseek', name: 'DeepSeek', description: 'Advanced reasoning', type: 'premium', icon: DeepSeekAIIcon },
 ];
 
 export const ChatArea: React.FC<ChatAreaProps> = ({
@@ -200,7 +204,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               className="flex items-center justify-between px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors min-w-[200px]"
             >
               <div className="flex items-center gap-3">
-                {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 18 }) : <Bot size={18} />}
+                {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 18, color: "black" }) : <Bot size={18} />}
                 <div className="text-left">
                   <div className="font-semibold text-gray-900 flex items-center gap-2">
                     {selectedModelData.name}
@@ -249,7 +253,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                         selectedModel === model.id ? 'bg-blue-50 border border-blue-200' : ''
                       } ${!user ? 'opacity-75' : ''}`}
                     >
-                      {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-gray-600' }) : <Bot size={16} className="text-gray-600" />}
+                      {model.icon ? React.createElement(model.icon, { size: 16, className: 'text-black-600', color: 'black' }) : <Bot size={16} className="text-gray-600" />}
                       <div className="flex-1">
                         <div className="font-semibold text-gray-900 flex items-center gap-2">
                           {model.name}
