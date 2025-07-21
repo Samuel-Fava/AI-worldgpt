@@ -669,7 +669,7 @@ function App() {
           // onDeleteConversation={handleDeleteConversation}
           /> : <></>}
           
-          {/* Login button below sidebar for non-logged users */}
+          {/* Login button below sidebar for non-logged users
           {!user && (
             <div className="fixed left-0 bottom-0 w-80 bg-gray-900 z-40">
               <button
@@ -680,7 +680,7 @@ function App() {
                 <span className="font-medium">Login</span>
               </button>
             </div>
-          )}
+          )} */}
           {isAuthModalOpen ? <></> :
             <ChatArea
               selectedModel={selectedModel}
