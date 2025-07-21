@@ -177,13 +177,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-SB">
-        <div className="bg-white rounded-3xl shadow-2x1 w-full max-w-md relative animate-in fade-in zoom-in duration-300 border border-gray-100 max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-professional-lg w-full max-w-md relative animate-fade-in border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto transition-colors duration-300">
           
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-6 right—6 text-gray-400 hover:text-gray—600 transition—colors z-19 p-2 rounded-full hover:bg-gray—100"
+            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors z-10 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 focus-ring"
             aria-label="Close modal"
           >
             <X size={20} />
@@ -191,13 +191,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
 
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-professional">
               <Sparkles size={28} className="text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb—3">
+            <h2 className="text-3xl font-bold text-heading mb-3">
               {isLogin ? 'Welcome back' : 'Create account'}
             </h2>
-            <p className="text—gray-660 leading-relaxed">
+            <p className="text-body leading-relaxed">
               {isLogin
                 ? 'Sign in to continue your AI—powered conversations and access your chat history'
                 : 'Join our community and unlock the full potential of AI assistance'
@@ -210,9 +210,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
             <form onSubmit={handleSubmit}>
               {/* Error Banner */}
               {errors.submit && (
-                <div className='p-4 bg-red-50 border-red-200 rounded-xl flex items-center gap-3'>
+                <div className='p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-3 mb-6'>
                   <AlertCircle size={20} className='text-red-600 flex-shrink-0' />
-                  <p className='text-red-700 text-sm'>{errors.submit}</p>
+                  <p className='text-red-700 dark:text-red-400 text-sm'>{errors.submit}</p>
                 </div>
               )}
 
@@ -229,8 +229,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onBlur={() => handleBlur('firstName')}
                       className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-SOO focus:border-transparent outline-none transition-all text-sm placeholder-gray-400' ${
                         getFieldError('firstName')
-                          ? 'border-red-300 bg-red-50 focus:ring-red-500'
-                          : 'border-gray-300 hover:border-gray-400 bg-white'
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                       }`}
                     /> 
                     {!getFieldError('firstName') && formData.firstName && touchedFields.firstName && (
@@ -252,8 +252,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onBlur={() => handleBlur('lastName')}
                       className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-SOO focus:border-transparent outline-none transition-all text-sm placeholder-gray-400' ${
                         getFieldError('lastName')
-                          ? 'border-red-300 bg-red-50 focus:ring-red-500'
-                          : 'border-gray-300 hover:border-gray-400 bg-white'
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                       }`}
                     />
 
@@ -283,8 +283,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onBlur={() => handleBlur('email')}
                       className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-blue-SOO focus:border-transparent outline-none transition-all text-sm placeholder-gray-400' ${
                         getFieldError('email')
-                          ? 'border-red-300 bg-red-50 focus:ring-red-500'
-                          : 'border-gray-300 hover:border-gray-400 bg-white'
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                       }`}
                     />
                     {!getFieldError('email') && formData.email && touchedFields.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && (
@@ -311,8 +311,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                     onBlur={() => handleBlur('password')}
                     className={`w-full pl-12 pr-12 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm placeholder-gray-400 ${
                       getFieldError('password')
-                        ? 'border-red-300 bg-red-50 focus:ring-red-500'
-                        : 'border-gray-300 hover:border-gray-400 bg-white'
+                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20 focus:ring-red-500'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                     }`}
                   />
                   <button
@@ -331,11 +331,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                     <div className='flex items-center gap-2 mb-2'>
                       <div className='flex-1 bg-gray-200 rounded-full h-2'>
                         <div
-                          className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                          className={`h-2 rounded-full transition-all duration-300 ${passwordStrength.color} shadow-sm`}
                           style={{ width: `${(passwordStrength.strength / 5) * 100}%`}}
                         />
                       </div>
-                      <span className='text-xs font-medium text-gray-600'>
+                      <span className='text-xs font-medium text-caption'>
                         {passwordStrength.label}
                       </span>
                     </div>
@@ -365,8 +365,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onBlur={() => handleBlur('confirmPassword')}
                       className={`w-full pl-12 pr-12 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm placeholder-gray-400 ${
                         getFieldError('confirmPassword')
-                          ? 'border-red-300 bg-red-50 focus:ring-red-500'
-                          : 'border-gray-300 hover:border-gray-400 bg-white'
+                          ? 'border-red-300 bg-red-50 dark:bg-red-900/20 focus:ring-red-500'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                       }`}
                     />
                     <button
@@ -400,7 +400,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
                       className='w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2'
                     />
-                    <span className='text-sm text-gray-600 group-hover:text-gray-800 transition-colors'>
+                    <span className='text-sm text-body group-hover:text-heading transition-colors'>
                       Keep me signed in for 30 days
                     </span>
                   </label>
@@ -414,13 +414,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                       onChange={(e) => handleInputChange('agreeToTerms', e.target.checked)}
                       className='w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mt-0.5'
                     />
-                    <span className='text-sm text-gray-600 group-hover:text-gray-800 transition-colors leading-relaxed'>
+                    <span className='text-sm text-body group-hover:text-heading transition-colors leading-relaxed'>
                       I agree to the{' '}
-                       <a href="#" className='text-blue-600 hover:text-blue-700 font-medium underline'>
+                       <a href="#" className='text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium underline'>
                         Terms of Service
                        </a>
                        {' '} and {' '}
-                       <a href="#" className='text-blue-600 hover:text-blue-700 font-medium underline'>
+                       <a href="#" className='text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium underline'>
                         Privacy Policy
                        </a>
                     </span>
@@ -432,7 +432,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
                 <div className='text-right'>
                   <button 
                     type='button' 
-                    className='text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors'
+                    className='text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors'
                     onClick={() => alert('Password reset flow coming soon!')}
                   >
                     Forget your password?
@@ -443,7 +443,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group shadow-lg hover:shadow-xl'
+                className='w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group shadow-professional-lg hover:shadow-xl focus-ring'
               >
                 {isLoading ? (
                   <>
@@ -460,12 +460,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
             </form>
 
             {/*Security Notice*/}
-            <div className='mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-x1 border border-blue-200'>
-              <div className='flex items-center gap-3 text-blue-700 text-sm mb-2'>
+            <div className='mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800'>
+              <div className='flex items-center gap-3 text-blue-700 dark:text-blue-400 text-sm mb-2'>
                   <Shield size={18} />
                   <span className='font-semibold'> Enterprise-grade security </span>
               </div>
-              <p className='text-blue-600 text-xs leading-relaxed'>
+              <p className='text-blue-600 dark:text-blue-400 text-xs leading-relaxed'>
                 Your data is protected with AES-256 encryption, secure authentication, and SOC 2 compliance.
                 We never store your conversations on our servers.
               </p>
@@ -473,12 +473,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
 
             {/* Toggle mode */}
             <div className='mt-8 text-center'>
-              <p className='text-gray-600 text-sm mb-4'>
+              <p className='text-body text-sm mb-4'>
                   {isLogin ? 'Do not have an account?' : 'Already have an account?'}
               </p>
               <button
                 onClick={toggleMode}
-                className='text-blue-600 hover:text:blue-700 font-semibold transition-clorors text-sm px-4 py-2 rounted-lg hover:bg-blue-50'
+                className='text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors text-sm px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 focus-ring'
               >
                 {isLogin ? 'Create a new account' : 'Sign in to your account'}
               </button>
