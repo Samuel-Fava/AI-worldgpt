@@ -105,21 +105,20 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   return (
     
     <div className="bg-gray-50 dark:bg-gray-900 text-black dark:text-white w-full h-full p-4 transition-colors duration-300">
+    <div className='bg-gray-50 dark:bg-gray-900 rounded-bl-3xl p-2 border-l border-b border-gray-200 dark:border-gray-700' style={{position: 'absolute', right: 16, top: 16, width: 100, display: 'flex', zIndex: 1000, justifyContent: 'right', paddingRight: 20, paddingBottom: 13 }}>
+      <div
+        className="w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
+        style={{ marginRight: '10px' }}
+        onClick={onProfileClick}
+        title="View Profile"
+      >
+        <HiAdjustmentsHorizontal size={18} className="text-white" />
+      </div>
+      <ThemeToggle />
+    </div>
     <div className="flex-1 rounded-2xl bg-white dark:bg-gray-800 w-full h-full flex flex-col overflow-hidden relative transition-colors duration-300 shadow-professional-lg border border-gray-200 dark:border-gray-700">
       
-      { sidebarStatus ? 
-      <div className='flex justify-end p-4 border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm'>
-        <div className='flex items-center gap-2'>
-          <div
-            className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
-            onClick={onProfileClick}
-            title="View Profile"
-          >
-            <HiAdjustmentsHorizontal size={18} className="text-white" />
-          </div>
-          <ThemeToggle/>
-        </div>
-      </div> : 
+      { !sidebarStatus &&
       <div className='flex justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm'>
         <button
           className="w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all duration-200 shadow-sm focus-ring"
@@ -127,17 +126,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           title="Toggle Sidebar"
         >
           <PanelLeft size={20} />
-        </button> 
-        <div className='flex items-center gap-2'>
-          <div
-            className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
-            onClick={onProfileClick}
-            title="View Profile"
-          >
-            <HiAdjustmentsHorizontal size={18} className="text-white" />
-          </div>
-          <ThemeToggle/>
-        </div>
+        </button>
       </div>}
 
       {/* Messages */}
