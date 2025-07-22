@@ -104,7 +104,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
   return (
     
-    <div className={`bg-gray-50 dark:bg-gray-900 text-black dark:text-white w-full h-full ${sidebarStatus ? 'pt-4' : ''} transition-colors duration-300 relative`}>
+    <div className={`bg-gray-50 dark:bg-gray-900 text-black dark:text-white w-full h-full ${sidebarStatus ? 'md:pt-4' : '' } pt-0 transition-colors duration-300 relative`}>
     {/* Mobile header for when sidebar is hidden */}
     {!sidebarStatus && (
       <div className="lg:hidden flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -174,9 +174,9 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         </div>
       )}
     </div>
-    <div className={`${!sidebarStatus ? 'bg-gray-200 dark:bg-gray-900 rounded-md' : ''} p-2`} style={{position: 'absolute', right: 6, top: 8, width: 80, display: 'flex', zIndex: 1000, justifyContent: 'center'}}>
+    <div className={`${!sidebarStatus ? 'bg-gray-200 dark:bg-gray-900 rounded-md' : ''} p-2`} style={{position: 'absolute', right: 6, top: 6, width: 80, display: 'flex', zIndex: 1000, justifyContent: 'center'}}>
       <div
-        className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
+      className="w-8 h-8 flex items-center justify-center bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all duration-200 shadow-sm focus-ring hover:shadow-md hover:scale-105"
         style={{ marginRight: '10px' }}
         onClick={onProfileClick}
         title="View Profile"
@@ -199,7 +199,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       </div>)}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin mt-8">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-md px-4">

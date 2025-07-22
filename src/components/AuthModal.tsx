@@ -391,7 +391,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuth })
               )}
 
               {/* Checkboxes */}
-              <div className='space-y-4'>
+              <div className='space-y-4 pt-4'>
                 {isLogin && (
                   <label className='flex items-center gap-3 cursor-pointer group'>
                     <input 

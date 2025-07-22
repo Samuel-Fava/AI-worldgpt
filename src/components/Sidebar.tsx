@@ -43,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
 
   return (
-    <div>
+    <div className='hidden lg:block'>
       {/* Mobile backdrop */}
       {isOpen && window.innerWidth < 1024 && (
         <div
@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Sidebar */}
-      <div className={`fixed lg:relative left-0 top-0 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col z-50 transform transition-all duration-300 ease-in-out shadow-professional-lg lg:shadow-none ${
+      <div className={`fixed lg:relative left-0 top-0 w-80 bg-white dark:bg-gray-900 flex flex-col z-50 transform transition-all duration-300 ease-in-out shadow-professional-lg lg:shadow-none ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`} style={{height: '100vh'}}>
         {/* Header */}
@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
           {/* New Chat Button */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="p-4 bg-gray-50/50 dark:bg-gray-800/50">
             <button
               onClick={onNewConversation}
               className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-professional font-medium focus-ring group"
@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onConversationSelect(conv.id)}
                     className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
                       activeConversationId === conv.id
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm border border-blue-200 dark:border-blue-800'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-sm'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-sm'
                     }`}
                   >
@@ -134,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Subscription Management */}
           {user && user.plan === 'free' && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+            <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
               <div className="space-y-3">
                 <div className="text-center mb-3">
                   <Crown size={20} className="mx-auto text-yellow-500 mb-1" />
@@ -149,7 +149,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
                 <button
                   onClick={openCustomerPortal}
-                  className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 text-sm font-medium shadow-sm"
+                  className="w-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 text-sm font-medium shadow-sm"
                 >
                   Manage Billing
                 </button>
@@ -159,8 +159,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* User Menu */}
           {user ? (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50">
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-gray-800 shadow-professional border border-gray-200 dark:border-gray-700 hover:shadow-professional-lg transition-all duration-200">
+            <div className="p-4 bg-gray-50/80 dark:bg-gray-800/50">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-gray-800 shadow-professional hover:shadow-professional-lg transition-all duration-200">
                 <div
                   className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
                   onClick={onProfileClick}
@@ -188,7 +188,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50">
+            <div className="p-4 bg-gray-50/80 dark:bg-gray-800/50">
               {!user && (
                 <button
                   type="button"
