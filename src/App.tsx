@@ -632,7 +632,7 @@ function App() {
   const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
   return (
-    <div className="h-screen bg-gray-100 flex">
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex overflow-hidden transition-colors duration-300">
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -669,18 +669,6 @@ function App() {
           // onDeleteConversation={handleDeleteConversation}
           /> : <></>}
           
-          {/* Login button below sidebar for non-logged users
-          {!user && (
-            <div className="fixed left-0 bottom-0 w-80 bg-gray-900 z-40">
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="w-full text-white py-4 px-6 hover:bg-gray-800 transition-colors flex items-center gap-3 text-left border-t border-gray-700"
-              >
-                <LogIn size={20} />
-                <span className="font-medium">Login</span>
-              </button>
-            </div>
-          )} */}
           {isAuthModalOpen ? <></> :
             <ChatArea
               selectedModel={selectedModel}
