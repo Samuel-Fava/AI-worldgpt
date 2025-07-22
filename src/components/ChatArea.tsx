@@ -174,7 +174,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         </div>
       )}
     </div>
-    <div className={`${!sidebarStatus ? 'bg-gray-120 dark:bg-gray-900 rounded-md' : ''} p-2 hidden lg:flex`} style={{position: 'absolute', right: 6, top: 8, width: 80, display: 'flex', zIndex: 1000, justifyContent: 'center'}}>
+    <div className={`${!sidebarStatus ? 'bg-gray-200 dark:bg-gray-900 rounded-md' : ''} p-2`} style={{position: 'absolute', right: 6, top: 8, width: 80, display: 'flex', zIndex: 1000, justifyContent: 'center'}}>
       <div
         className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
         style={{ marginRight: '10px' }}
