@@ -224,6 +224,13 @@
     0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
+.hover\:shadow-professional-lg:hover {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
 .dark .shadow-professional {
   box-shadow: 
     0 1px 3px 0 rgba(0, 0, 0, 0.4), 
@@ -232,6 +239,13 @@
 }
 
 .dark .shadow-professional-lg {
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.4), 
+    0 4px 6px -2px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark .hover\:shadow-professional-lg:hover {
   box-shadow: 
     0 10px 15px -3px rgba(0, 0, 0, 0.4), 
     0 4px 6px -2px rgba(0, 0, 0, 0.3),

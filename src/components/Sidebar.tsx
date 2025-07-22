@@ -106,7 +106,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Start a new chat to begin</p>
                 </div>
               ) : (
-              {conversations.map((conv) => (
+                <>
+                {conversations.map((conv) => (
                 <div key={conv.id} className="relative group">
                   <button
                     onClick={() => onConversationSelect(conv.id)}
@@ -126,6 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 </div>
               ))}
+                </>
               )}
             </div>
           </div>
