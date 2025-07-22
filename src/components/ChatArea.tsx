@@ -104,8 +104,48 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
   return (
     
-    <div className="bg-gray-50 dark:bg-gray-900 text-black dark:text-white w-full h-full p-4 transition-colors duration-300">
-    <div className='bg-gray-50 dark:bg-gray-900 rounded-bl-3xl p-2 border-l border-b border-gray-200 dark:border-gray-700' style={{position: 'absolute', right: 16, top: 16, width: 100, display: 'flex', zIndex: 1000, justifyContent: 'right', paddingRight: 20, paddingBottom: 13 }}>
+    <div className={`bg-gray-50 dark:bg-gray-900 text-black dark:text-white w-full h-full ${sidebarStatus ? 'pt-4' : ''} transition-colors duration-300`}>
+    <div
+      className="fixed -right-4 z-20 h-16 w-36 max-sm:hidden overflow-hidden"
+      style={{ top: -1 }}
+    >
+      {sidebarStatus && (
+        <div
+          className="group pointer-events-none absolute top-4 right-0 z-10 -mb-8 h-32 w-full origin-top transition-all ease-snappy"
+        >
+          <svg
+            className="absolute -right-8 h-9 origin-top-left skew-x-[30deg] overflow-visible"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+            viewBox="0 0 158 32"
+            xmlSpace="preserve"
+          >
+            <line
+              strokeWidth="2px"
+              shapeRendering="optimizeQuality"
+              vectorEffect="non-scaling-stroke"
+              strokeLinecap="round"
+              strokeMiterlimit={10}
+              x1={1}
+              y1={0}
+              x2={158}
+              y2={0}
+            />
+            <path
+              className="translate-y-[0.5px] stroke-gray-200 dark:stroke-gray-700 fill-gray-50 dark:fill-gray-900"
+              shapeRendering="optimizeQuality"
+              strokeWidth="1px"
+              strokeLinecap="round"
+              strokeMiterlimit={10}
+              vectorEffect="non-scaling-stroke"
+              d="M0,0c5.9,0,10.7,4.8,10.7,10.7v10.7c0,5.9,4.8,10.7,10.7,10.7H128V0"
+            />
+          </svg>
+        </div>
+      )}
+    </div>
+    <div className={`${!sidebarStatus ? 'bg-gray-120 dark:bg-gray-900 rounded-md' : ''} p-2`} style={{position: 'absolute', right: 6, top: 8, width: 80, display: 'flex', zIndex: 1000, justifyContent: 'center'}}>
       <div
         className="w-7 h-7 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md transition-all duration-200 focus-ring"
         style={{ marginRight: '10px' }}
@@ -116,7 +156,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       </div>
       <ThemeToggle />
     </div>
-    <div className="flex-1 rounded-2xl bg-white dark:bg-gray-800 w-full h-full flex flex-col overflow-hidden relative transition-colors duration-300 shadow-professional-lg border border-gray-200 dark:border-gray-700">
+    <div className={`flex-1 ${sidebarStatus ? 'rounded-tl-2xl' : ''} bg-white dark:bg-gray-800 w-full h-full flex flex-col overflow-hidden relative transition-colors duration-300 shadow-professional-lg border border-gray-200 dark:border-gray-700`}>
       
       { !sidebarStatus &&
       <div className='flex justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm'>
@@ -145,41 +185,47 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         ) : (
           messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
-            >
-              {message.sender === 'ai' && (
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                  {(() => {
-                    console.log(message)
-                    const model = AI_MODELS.find(m => m.id === message.model);
-                    const Icon = model?.icon || Bot;
-                    return <Icon size={18} className="text-white" />;
-                  })()}
+            <div>
+              <div
+                key={message.id}
+                className={`flex gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                style={{alignItems: 'center'}}
+              >
+                {message.sender === 'ai' && (
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    {(() => {
+                      console.log(message)
+                      const model = AI_MODELS.find(m => m.id === message.model);
+                      const Icon = model?.icon || Bot;
+                      return <Icon size={18} className="text-white" />;
+                    })()}
+                  </div>
+                )}
+                
+                <div className={`max-w-3xl ${message.sender === 'user' ? 'order-first' : ''}`}>
+                  <div className={`message-bubble ${
+                    message.sender === 'user'
+                      ? 'user shadow-professional'
+                      : 'ai shadow-professional'
+                  }`}>
+                    <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  </div>
                 </div>
-              )}
-              
-              <div className={`max-w-3xl ${message.sender === 'user' ? 'order-first' : ''}`}>
-                <div className={`message-bubble ${
-                  message.sender === 'user'
-                    ? 'user shadow-professional'
-                    : 'ai shadow-professional'
-                }`}>
-                  <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                </div>
+
+                {message.sender === 'user' && (
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <User size={18} className="text-white" />
+                  </div>
+                )}
+              </div>
+              <div className={`flex gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 shadow-sm" />
                 <div className={`text-xs text-caption mt-2 ${
                   message.sender === 'user' ? 'text-right' : 'text-left'
                 }`}>
                   {message.timestamp.toLocaleTimeString()}
                 </div>
               </div>
-
-              {message.sender === 'user' && (
-                <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <User size={18} className="text-white" />
-                </div>
-              )}
             </div>
           ))
         )}
@@ -220,7 +266,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             >
               <div className="flex items-center gap-3">
                 {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 18, color: "black" }) : <Bot size={18} />}
-                <div className="text-left">
+                <div className="text-left hidden sm:block">
                   <div className="font-semibold text-heading flex items-center gap-2">
                     {selectedModelData.name}
                     {selectedModelData.type === 'premium' && (

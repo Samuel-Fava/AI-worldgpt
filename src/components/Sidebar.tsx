@@ -53,12 +53,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Sidebar */}
-      <div className={`fixed lg:relative left-0 top-0 w-80 bg-white dark:bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 shadow-professional-lg border-r border-gray-200 dark:border-gray-700
+      <div className={`hidden lg:block fixed lg:relative left-0 top-0 w-80 bg-white dark:bg-gray-900 flex flex-col z-50 transform transition-transform duration-300 shadow-professional-lg
         }`} style={{height: '100vh'}}>
         {/* Header */}
         
         
-        <div className='flex justify-between bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-4'>
+        <div className='flex justify-between bg-white dark:bg-gray-900 px-4 py-4'>
           <button
             className="w-10 h-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 focus-ring"
             onClick={setSidebarstatus}
@@ -119,7 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => onConversationSelect(conv.id)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       activeConversationId === conv.id
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-l-3 border-blue-600'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 '
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
@@ -138,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Subscription Management */}
           {user && user.plan === 'free' && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 ">
               <div className="space-y-3">
                 <button
                   onClick={handleStartSubscription}
