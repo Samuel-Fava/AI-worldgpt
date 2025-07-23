@@ -59,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Header */}
         
         
-        <div className='flex justify-between items-center bg-white dark:bg-gray-900 px-4 py-4 border-b border-gray-200 dark:border-gray-700'>
+        <div className='flex justify-between items-center bg-white dark:bg-gray-900 px-4 py-4'>
           {/* Mobile menu button */}
           <button
             className="lg:hidden w-10 h-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 focus-ring"

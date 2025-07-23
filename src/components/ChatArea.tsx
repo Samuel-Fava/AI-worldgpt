@@ -140,7 +140,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     >
       {sidebarStatus && (
         <div
-          className="group pointer-events-none absolute top-4 right-0 z-10 -mb-8 h-32 w-full origin-top transition-all ease-snappy"
+          className="group pointer-events-none absolute right-0 z-10 -mb-8 h-32 w-full origin-top transition-all ease-snappy"
+          style={{top: 15}}
         >
           <svg
             className="absolute -right-8 h-9 origin-top-left skew-x-[30deg] overflow-visible"
@@ -288,14 +289,14 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         {/* Model Selector */}
         <div className="flex gap-3 sm:gap-4 items-start">
-          <div className="relative">
+          <div className="relative w-full h-full">
             <button
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 min-w-[160px] sm:min-w-[200px] text-gray-900 dark:text-white shadow-professional focus-ring"
+              className="flex w-full h-full items-center justify-between px-2 sm:px-2 py-0 sm:py-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 min-w-[160px] sm:min-w-[200px] text-gray-900 dark:text-white shadow-professional focus-ring"
             >
               <div className="flex items-center gap-2 sm:gap-3">
                 {selectedModelData.icon ? React.createElement(selectedModelData.icon, { size: 16, color: "black" }) : <Bot size={16} />}
-                <div className="text-left hidden sm:block">
+                <div className="text-left">
                   <div className="font-semibold text-heading flex items-center gap-1 text-sm">
                     {selectedModelData.name}
                     {selectedModelData.type === 'premium' && (
@@ -303,9 +304,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                     )}
                   </div>
                   <div className="text-xs text-caption truncate max-w-[120px]">{selectedModelData.description}</div>
-                </div>
-                <div className="sm:hidden text-xs font-medium text-heading">
-                  {selectedModelData.name}
                 </div>
               </div>
               <ChevronDown size={14} className={`transform transition-transform text-gray-400 ${
@@ -377,15 +375,18 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               className="w-full h-full px-3 sm:px-4 py-3 sm:py-[14px] border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none max-h-32 min-h-[48px] sm:min-h-[52px] leading-relaxed shadow-professional transition-all duration-200 text-sm sm:text-base"
               rows={1}
             />
-          </div>
-          <div className="flex gap-2 items-end">
             <button
               type="submit"
               disabled={!input.trim() || (!user && remainingFreeMessages <= 0)}
-              className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-professional font-medium focus-ring group"
+              className="p-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 shadow-professional font-medium focus-ring group"
+              style={{
+                position: 'absolute',
+                right: 8,
+                bottom: 8,
+              }}
             >
-              <Send size={18} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-              <span className="hidden sm:inline text-sm font-semibold">Send</span>
+              <Send size={13} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+              <span>Send</span>
             </button>
           </div>
         </form>
